@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026 AI 챔피언 해커톤 · 참가작품 갤러리</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0A0C11;
+    --bg-soft:#12151D;
+    --card:rgba(255,255,255,0.045);
+    --card-hover:rgba(255,255,255,0.075);
+    --line:rgba(255,255,255,0.09);
+    --line-strong:rgba(255,255,255,0.18);
+    --text:#F4F2EC;
+    --text-dim:#9599A8;
+    --text-faint:#5B5F6E;
+
+    --amber:#F5B833; --amber-glow:rgba(245,184,51,0.32);
+    --violet:#B58CFF; --violet-glow:rgba(181,140,255,0.28);
+    --teal:#57D9C4; --teal-glow:rgba(87,217,196,0.24);
+    --bronze:#E0A868; --bronze-glow:rgba(224,168,104,0.2);
+
+    --safety:#5B9CFF; --safety-glow:rgba(91,156,255,0.22);
+    --welfare:#FF7A50; --welfare-glow:rgba(255,122,80,0.22);
+
+    --radius:16px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0; background:var(--bg); color:var(--text);
+    font-family:'Pretendard',-apple-system,BlinkMacSystemFont,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .mono{font-family:'JetBrains Mono',ui-monospace,monospace;}
+  .gd{font-family:'Space Grotesk',sans-serif;}
+  ::selection{background:var(--amber); color:#1B1400;}
+
+  /* ================= HERO ================= */
+  .hero{
+    position:relative; overflow:hidden;
+    padding:56px 24px 44px;
+    border-bottom:1px solid var(--line);
+    background:
+      radial-gradient(60% 55% at 18% -10%, rgba(245,184,51,0.14), transparent 60%),
+      radial-gradient(50% 50% at 100% 0%, rgba(91,156,255,0.12), transparent 55%),
+      var(--bg);
+  }
+  .hero-inner{max-width:1160px;margin:0 auto;position:relative;}
+  .hero-top{display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap;}
+  .eyebrow{
+    font-family:'JetBrains Mono',monospace; font-size:11.5px; letter-spacing:0.24em;
+    text-transform:uppercase; color:var(--amber); display:flex; align-items:center; gap:9px;
+    animation:fadeUp .6s ease both;
+  }
+  .eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--amber);box-shadow:0 0 10px var(--amber);animation:blink 1.7s infinite;}
+  @keyframes blink{0%,100%{opacity:1;}50%{opacity:.2;}}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+
+  .hero-title{
+    font-size:clamp(34px,5.6vw,58px); font-weight:900; line-height:1.08; letter-spacing:-0.02em;
+    margin:16px 0 10px; animation:fadeUp .7s .05s ease both;
+  }
+  .hero-title .hl{
+    background:linear-gradient(95deg,#F5B833 0%,#FF9B57 45%,#FF7A50 100%);
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+  }
+  .hero-sub{color:var(--text-dim); font-size:16.5px; max-width:580px; line-height:1.7; margin:0 0 28px; animation:fadeUp .7s .1s ease both;}
+
+  .stat-row{display:flex; gap:10px; flex-wrap:wrap; animation:fadeUp .7s .15s ease both;}
+  .stat-tile{
+    flex:1 1 130px; padding:16px 18px; border-radius:14px;
+    background:var(--card); border:1px solid var(--line);
+    position:relative; overflow:hidden;
+  }
+  .stat-tile .num{font-family:'Space Grotesk',sans-serif; font-size:30px; font-weight:700; color:var(--text); line-height:1;}
+  .stat-tile .lbl{font-size:13px; color:var(--text-dim); margin-top:6px;}
+  .stat-tile.gold .num{color:var(--amber);}
+
+  /* admin */
+  .admin-zone{display:flex; align-items:center; gap:8px;}
+  .btn{
+    font-family:'Pretendard',sans-serif; font-size:13px; font-weight:700;
+    border-radius:10px; padding:9px 15px; border:1px solid transparent; cursor:pointer;
+    transition:all .15s ease; display:inline-flex; align-items:center; gap:6px; white-space:nowrap;
+  }
+  .btn-ghost{background:rgba(255,255,255,0.06); color:var(--text); border-color:var(--line-strong);}
+  .btn-ghost:hover{background:rgba(255,255,255,0.11);}
+  .btn-amber{background:var(--amber); color:#1B1400;}
+  .btn-amber:hover{filter:brightness(1.08); transform:translateY(-1px);}
+  .btn-outline{background:transparent; color:var(--text); border-color:var(--line-strong);}
+  .btn-outline:hover{background:rgba(255,255,255,0.06);}
+  .btn-danger{background:transparent; color:#FF8A8A; border-color:rgba(255,120,120,0.35);}
+  .btn-danger:hover{background:rgba(255,100,100,0.1);}
+  .btn-sm{padding:6px 10px; font-size:12px; border-radius:8px;}
+  .btn-block{width:100%; justify-content:center;}
+
+  .pw-box{display:flex; gap:6px; align-items:center;}
+  .pw-box input{
+    padding:8px 11px; border-radius:9px; border:1px solid var(--line-strong);
+    background:rgba(255,255,255,0.06); color:var(--text); font-size:13px; width:140px; outline:none;
+  }
+  .pw-box input::placeholder{color:var(--text-faint);}
+  .pw-box input:focus{border-color:var(--amber);}
+
+  /* ================= NAV ================= */
+  .nav-wrap{
+    position:sticky; top:0; z-index:40; background:rgba(10,12,17,0.85); backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  .nav-inner{max-width:1160px; margin:0 auto; padding:14px 24px; display:flex; align-items:center; gap:18px; flex-wrap:wrap;}
+  .stage-switch{
+    display:inline-flex; background:var(--card); border:1px solid var(--line); border-radius:12px; padding:4px; gap:2px;
+  }
+  .stage-btn{
+    font-size:14.5px; font-weight:700; padding:9px 19px; border-radius:9px; border:none; cursor:pointer;
+    background:transparent; color:var(--text-dim); transition:all .18s ease; display:flex; align-items:center; gap:6px;
+  }
+  .stage-btn .cnt{font-family:'JetBrains Mono',monospace; font-size:11px; opacity:.75;}
+  .stage-btn.active{background:var(--text); color:#0A0C11;}
+  .stage-btn.active.final{background:linear-gradient(95deg,var(--amber),#FF8A50); color:#1B1400;}
+
+  .field-pills{display:flex; gap:7px; flex-wrap:wrap;}
+  .pill{
+    font-size:13.5px; font-weight:700; padding:7px 14px; border-radius:999px;
+    border:1px solid var(--line-strong); background:transparent; color:var(--text-dim); cursor:pointer;
+    transition:all .15s ease;
+  }
+  .pill[data-field="전체"].active{background:var(--text); border-color:var(--text); color:#0A0C11;}
+  .pill[data-field="생활안전"].active{background:var(--safety-glow); border-color:var(--safety); color:#BFD6FF;}
+  .pill[data-field="복지혜택"].active{background:var(--welfare-glow); border-color:var(--welfare); color:#FFCBB5;}
+
+  .search-wrap{margin-left:auto; position:relative;}
+  .search-wrap input{
+    font-family:'Pretendard',sans-serif; border:1px solid var(--line-strong); background:var(--card);
+    color:var(--text); border-radius:999px; padding:8px 14px 8px 32px; font-size:13px; width:210px; outline:none;
+  }
+  .search-wrap input::placeholder{color:var(--text-faint);}
+  .search-wrap input:focus{border-color:var(--amber);}
+  .search-wrap::before{content:"⌕"; position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--text-faint); font-size:14px;}
+
+  /* ================= SEMI GRID ================= */
+  .wrap{max-width:1160px; margin:0 auto; padding:30px 24px 70px;}
+  .section-head{display:flex; align-items:baseline; gap:10px; margin:8px 0 16px;}
+  .section-head h2{font-size:16.5px; font-weight:800; margin:0; letter-spacing:-0.01em;}
+  .section-head .line{flex:1; height:1px; background:var(--line);}
+  .section-head .cnt{font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--text-faint);}
+
+  .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:14px;}
+
+  .card{
+    position:relative;
+    background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
+    padding:18px 18px 16px; display:flex; flex-direction:column; gap:11px;
+    transition:all .2s ease; backdrop-filter:blur(8px);
+  }
+  .card:hover{background:var(--card-hover); border-color:var(--line-strong); transform:translateY(-2px);}
+  .card-top{display:flex; align-items:center; justify-content:space-between; gap:8px;}
+  .card-id{font-family:'JetBrains Mono',monospace; font-size:11.5px; color:var(--text-faint);}
+  .badges{display:flex; gap:6px; flex-wrap:wrap; align-items:center;}
+  .field-icon{
+    width:32px; height:32px; border-radius:9px; flex-shrink:0;
+    display:inline-flex; align-items:center; justify-content:center; font-size:17px;
+    border:1px solid var(--line-strong);
+  }
+  .field-icon-생활안전{background:var(--safety-glow); border-color:rgba(91,156,255,0.45);}
+  .field-icon-복지혜택{background:var(--welfare-glow); border-color:rgba(255,122,80,0.45);}
+  .badge{font-size:11.5px; font-weight:700; padding:3px 9px; border-radius:6px; border:1px solid var(--line-strong); color:var(--text-dim);}
+  .badge-field-생활안전{background:var(--safety-glow); border-color:rgba(91,156,255,0.4); color:#BFD6FF;}
+  .badge-field-복지혜택{background:var(--welfare-glow); border-color:rgba(255,122,80,0.4); color:#FFCBB5;}
+  .badge-advance{background:rgba(245,184,51,0.14); border-color:rgba(245,184,51,0.4); color:var(--amber);}
+  .badge-stage{background:rgba(255,255,255,0.06); color:var(--text-dim);}
+  .badge-stage-결선{background:rgba(245,184,51,0.14); border-color:rgba(245,184,51,0.4); color:var(--amber);}
+  .badge-award-대상{background:rgba(245,184,51,0.16); border-color:rgba(245,184,51,0.4); color:var(--amber);}
+  .badge-award-최우수상{background:rgba(181,140,255,0.16); border-color:rgba(181,140,255,0.4); color:var(--violet);}
+  .badge-award-우수상{background:rgba(87,217,196,0.16); border-color:rgba(87,217,196,0.4); color:var(--teal);}
+  .badge-award-장려상{background:rgba(224,168,104,0.16); border-color:rgba(224,168,104,0.4); color:var(--bronze);}
+  .search-result-head{text-align:center; max-width:640px; margin:6px auto 26px;}
+  .search-result-head p{color:var(--text-dim); font-size:14.5px; margin:10px 0 0;}
+  .search-result-head p b{color:var(--text);}
+
+  .card-title{
+    font-size:22px; font-weight:900; line-height:1.28; margin:0; letter-spacing:-0.015em;
+    background:linear-gradient(95deg,#FFD874 0%,#FFA95C 50%,#FF8562 100%);
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+  }
+  .card-team{font-size:14.5px; color:var(--text-dim); margin:-2px 0 0;}
+  .card-team b{color:var(--text); font-weight:700;}
+  .chip-coder{font-size:12px; font-weight:700; padding:3px 9px; border-radius:6px; border:1px solid var(--line-strong);}
+  .chip-coder-백{background:#F4F2EC; color:#0A0C11; border-color:#F4F2EC;}
+  .chip-coder-흑{background:#0A0C11; color:#F4F2EC; border-color:rgba(255,255,255,0.4);}
+
+  .card-bottom{margin-top:auto; padding-top:11px; border-top:1px solid var(--line); display:flex; align-items:center; justify-content:space-between; gap:8px;}
+  .link-btn{
+    font-size:13.5px; font-weight:700; color:var(--text); text-decoration:none; padding:7px 12px; border-radius:9px;
+    border:1px solid var(--line-strong); display:inline-flex; align-items:center; gap:5px;
+  }
+  .link-btn:hover{background:var(--text); color:#0A0C11; border-color:var(--text);}
+  .admin-actions{display:flex; gap:5px;}
+  .icon-btn{
+    width:28px;height:28px; border-radius:8px; border:1px solid var(--line-strong); background:transparent; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; font-size:13px; color:var(--text-dim);
+  }
+  .icon-btn:hover{background:rgba(255,255,255,0.08); color:var(--text);}
+  .icon-btn.del:hover{background:rgba(255,90,90,0.12); color:#FF8A8A; border-color:rgba(255,90,90,0.4);}
+
+  .add-card{
+    border:1.5px dashed var(--line-strong); border-radius:var(--radius); min-height:150px;
+    display:flex; align-items:center; justify-content:center; cursor:pointer;
+    color:var(--text-faint); font-weight:700; font-size:13px; background:transparent;
+  }
+  .add-card:hover{border-color:var(--amber); color:var(--amber); background:rgba(245,184,51,0.05);}
+
+  .empty-state{padding:50px 20px; text-align:center; color:var(--text-faint);}
+
+  /* ================= PODIUM (결선) ================= */
+  .podium-intro{text-align:center; max-width:640px; margin:6px auto 40px;}
+  .podium-intro .eyebrow{justify-content:center;}
+  .podium-intro h2{
+    font-size:clamp(24px,3.4vw,32px); font-weight:900; margin:12px 0 8px; letter-spacing:-0.01em;
+  }
+  .podium-intro p{color:var(--text-dim); font-size:15.5px; line-height:1.7; margin:0;}
+
+  .tier{margin-bottom:34px;}
+  .tier-head{display:flex; align-items:center; gap:10px; justify-content:center; margin-bottom:16px;}
+  .tier-head .medal{font-size:22px;}
+  .tier-head .name{font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:14px; letter-spacing:0.06em; text-transform:uppercase;}
+  .tier-head .kr{font-size:16.5px; font-weight:800;}
+
+  .tier-grand .name, .tier-grand .kr{color:var(--amber);}
+  .tier-excellent .name, .tier-excellent .kr{color:var(--violet);}
+  .tier-superior .name, .tier-superior .kr{color:var(--teal);}
+  .tier-encourage .name, .tier-encourage .kr{color:var(--bronze);}
+
+  .tier-grid{display:grid; gap:14px; max-width:1160px; margin:0 auto;}
+  .tier-grand .tier-grid{grid-template-columns:minmax(280px,520px); justify-content:center;}
+  .tier-excellent .tier-grid{grid-template-columns:minmax(280px,460px); justify-content:center;}
+  .tier-superior .tier-grid, .tier-encourage .tier-grid{grid-template-columns:repeat(auto-fit,minmax(280px,1fr));}
+
+  .award-card{
+    position:relative; border-radius:20px; padding:2px; overflow:hidden;
+  }
+  .award-card::before{
+    content:""; position:absolute; inset:0; border-radius:20px; padding:1px;
+    background:linear-gradient(150deg, var(--tint,var(--amber)), transparent 60%);
+    -webkit-mask:linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite:xor; mask-composite:exclude; opacity:.7;
+  }
+  .award-card-inner{
+    position:relative; background:linear-gradient(165deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+    border-radius:19px; padding:22px 22px 18px; backdrop-filter:blur(10px);
+  }
+  .award-card.grand .award-card-inner{padding:32px 30px 24px; text-align:center;}
+  .award-card.grand{ --tint:var(--amber); box-shadow:0 0 60px -12px var(--amber-glow);}
+  .award-card.excellent{ --tint:var(--violet); box-shadow:0 0 46px -14px var(--violet-glow);}
+  .award-card.superior{ --tint:var(--teal); box-shadow:0 0 34px -14px var(--teal-glow);}
+  .award-card.encourage{ --tint:var(--bronze); box-shadow:0 0 26px -14px var(--bronze-glow);}
+
+  .award-rank-label{
+    font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:11px; letter-spacing:0.12em;
+    display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:999px; margin-bottom:14px;
+  }
+  .award-card.grand .award-rank-label{background:rgba(245,184,51,0.16); color:var(--amber); font-size:12px;}
+  .award-card.excellent .award-rank-label{background:rgba(181,140,255,0.16); color:var(--violet);}
+  .award-card.superior .award-rank-label{background:rgba(87,217,196,0.16); color:var(--teal);}
+  .award-card.encourage .award-rank-label{background:rgba(224,168,104,0.16); color:var(--bronze);}
+
+  .award-card.grand .card-title{font-size:34px;}
+  .award-card .card-title{
+    font-size:23px; margin:0 0 4px;
+    background:none; -webkit-background-clip:initial; background-clip:initial; color:var(--tint);
+  }
+  .award-card .card-team{font-size:15px; color:var(--text-dim); margin:0 0 12px;}
+  .award-card.grand .card-team{font-size:16.5px;}
+  .award-card .card-team b{color:var(--text); font-weight:700;}
+  .award-card .meta-row{display:flex; gap:6px; flex-wrap:wrap; margin-bottom:14px; align-items:center;}
+  .award-card.grand .meta-row{justify-content:center;}
+  .award-card .bottom-row{display:flex; align-items:center; gap:8px; justify-content:space-between;}
+  .award-card.grand .bottom-row{justify-content:center;}
+
+  /* ================= MODAL ================= */
+  .overlay{position:fixed; inset:0; background:rgba(5,6,9,0.7); backdrop-filter:blur(3px); display:none; align-items:center; justify-content:center; z-index:100; padding:20px;}
+  .overlay.show{display:flex;}
+  .modal{background:var(--bg-soft); border:1px solid var(--line-strong); border-radius:18px; width:100%; max-width:440px; padding:24px; box-shadow:0 30px 80px rgba(0,0,0,0.5); max-height:88vh; overflow-y:auto;}
+  .modal h3{margin:0 0 4px; font-size:18px;}
+  .modal .modal-sub{font-size:12.5px; color:var(--text-dim); margin:0 0 18px;}
+  .field{margin-bottom:13px;}
+  .field label{display:block; font-size:12.5px; font-weight:700; margin-bottom:6px; color:var(--text-dim);}
+  .field select, .field input{
+    width:100%; padding:10px 11px; border-radius:9px; border:1px solid var(--line-strong);
+    font-family:'Pretendard',sans-serif; font-size:13.5px; outline:none; background:rgba(255,255,255,0.04); color:var(--text);
+  }
+  .field select:focus, .field input:focus{border-color:var(--amber);}
+  .field-row{display:flex; gap:10px;}
+  .field-row > *{flex:1;}
+  .modal-actions{display:flex; gap:8px; margin-top:18px;}
+  .modal-actions .btn{flex:1;}
+
+  .toast{
+    position:fixed; bottom:22px; left:50%; transform:translateX(-50%) translateY(20px);
+    background:var(--text); color:#0A0C11; padding:11px 20px; border-radius:11px; font-size:13px; font-weight:700;
+    opacity:0; pointer-events:none; transition:all .25s ease; z-index:200;
+  }
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+
+  footer{max-width:1160px; margin:0 auto; padding:0 24px 44px; color:var(--text-faint); font-size:13px;}
+
+  @media (max-width:640px){
+    .nav-inner{flex-direction:column; align-items:stretch;}
+    .search-wrap{margin-left:0; width:100%;}
+    .search-wrap input{width:100%;}
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-top">
+      <div>
+        <div class="eyebrow"><span class="dot"></span>2026 AI CHAMPION HACKATHON</div>
+        <h1 class="hero-title">참가작품 <span class="hl">갤러리</span></h1>
+        <p class="hero-sub">생활안전 · 복지혜택 두 분야, 본선 24팀의 도전과 결선 8팀의 수상작을 만나보세요.</p>
+      </div>
+      <div class="admin-zone" id="adminZone">
+        <button class="btn btn-ghost" id="adminBtn">🔒 관리자 모드</button>
+      </div>
+    </div>
+    <div class="stat-row" id="statRow"></div>
+  </div>
+</div>
+
+<div class="nav-wrap">
+  <div class="nav-inner">
+    <div class="stage-switch" id="stageSwitch">
+      <button class="stage-btn active" data-stage="본선">본선 <span class="cnt" id="cnt-본선"></span></button>
+      <button class="stage-btn final" data-stage="결선">🏆 결선 <span class="cnt" id="cnt-결선"></span></button>
+    </div>
+    <div class="field-pills" id="fieldPills">
+      <button class="pill active" data-field="전체">전체 분야</button>
+      <button class="pill" data-field="생활안전">🛡️ 생활안전</button>
+      <button class="pill" data-field="복지혜택">🤝 복지혜택</button>
+    </div>
+    <div class="search-wrap">
+      <input type="text" id="searchInput" placeholder="팀명 또는 작품명 검색">
+    </div>
+  </div>
+</div>
+
+<div class="wrap" id="content"></div>
+
+<footer>2026 AI 챔피언 해커톤 참가작품 갤러리 · 관리자 모드에서 작품 정보를 추가/수정/삭제할 수 있습니다.</footer>
+
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <h3 id="modalTitle">작품 추가</h3>
+    <p class="modal-sub">작품 정보를 입력한 뒤 저장하세요.</p>
+    <form id="workForm">
+      <div class="field-row">
+        <div class="field">
+          <label>대회</label>
+          <select id="f-stage">
+            <option value="본선">본선</option>
+            <option value="결선">결선</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>분야</label>
+          <select id="f-field">
+            <option value="생활안전">생활안전</option>
+            <option value="복지혜택">복지혜택</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label>팀명</label>
+        <input type="text" id="f-team" required placeholder="예: 동동즈">
+      </div>
+      <div class="field">
+        <label>작품명</label>
+        <input type="text" id="f-work" required placeholder="예: 쨍하고 해뜰날">
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>코더 구분</label>
+          <select id="f-coder">
+            <option value="흑코더">흑코더</option>
+            <option value="백코더">백코더</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>수상</label>
+          <select id="f-award">
+            <option value="">수상 없음</option>
+            <option value="대상">대상</option>
+            <option value="최우수상">최우수상</option>
+            <option value="우수상">우수상</option>
+            <option value="장려상">장려상</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label>작품 링크 (Google Drive)</label>
+        <input type="url" id="f-link" required placeholder="https://drive.google.com/...">
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-outline" id="cancelBtn">취소</button>
+        <button type="submit" class="btn btn-amber">저장</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SEED_DATA = [{"id": "w001", "stage": "본선", "field": "복지혜택", "team": "복지강박증", "work": "복지마중", "coder": "백코더", "link": "https://drive.google.com/open?id=1xdUCflw9LsZf1w5FTvRiTS6QI5BovNWQ&usp=drive_fs", "award": null}, {"id": "w002", "stage": "본선", "field": "복지혜택", "team": "안양시그널(Signal)", "work": "(  ) 보다", "coder": "흑코더", "link": "https://docs.google.com/presentation/d/1yicUkUZPUzGYT9QTQEZWuz4QGqnSSKQQ?rtpof=true&usp=drive_fs", "award": null}, {"id": "w003", "stage": "본선", "field": "복지혜택", "team": "C.A.R.E", "work": "C.A.R.E", "coder": "흑코더", "link": "https://docs.google.com/presentation/d/1lZLMmmOloDkZvG-ZMfKG9L8VNmT_g1N2?rtpof=true&usp=drive_fs", "award": null}, {"id": "w004", "stage": "본선", "field": "복지혜택", "team": "이어드림", "work": "우리집", "coder": "흑코더", "link": "https://drive.google.com/open?id=1IQEm-eEdxE_ggh6DMmsQPD1HXIby5Srx&usp=drive_fs", "award": null}, {"id": "w005", "stage": "본선", "field": "복지혜택", "team": "TaxSolve", "work": "복지다모아", "coder": "백코더", "link": "https://docs.google.com/presentation/d/1-4rfndsbcmKvJ2-8HShYT-RjgyGqBf39?rtpof=true&usp=drive_fs", "award": null}, {"id": "w006", "stage": "본선", "field": "복지혜택", "team": "보듬", "work": "보듬", "coder": "흑코더", "link": "https://docs.google.com/presentation/d/1o2j6WV70zfjZ51WOjoG6aBsAPltIu1Su?rtpof=true&usp=drive_fs", "award": null}, {"id": "w007", "stage": "본선", "field": "복지혜택", "team": "일석이조", "work": "복지 One-GOV", "coder": "백코더", "link": "https://drive.google.com/open?id=1tG6Qx1JFKHSJfjEaias5JuiaJeJe3FOH&usp=drive_fs", "award": null}, {"id": "w008", "stage": "본선", "field": "복지혜택", "team": "아들넷딸둘", "work": "i-care 페이스메이커", "coder": "백코더", "link": "https://drive.google.com/open?id=18qzP-TNKavOahRJlM3ESfhNK56qu3lV4&usp=drive_fs", "award": null}, {"id": "w009", "stage": "본선", "field": "복지혜택", "team": "AI 기반 新 안전신문고 서비스", "work": "신 안전신문고 서비스", "coder": "백코더", "link": "https://drive.google.com/open?id=1wrCwaOYHu_pSsK9i2ftiQePbFE7PYF23&usp=drive_fs", "award": null}, {"id": "w010", "stage": "본선", "field": "복지혜택", "team": "Team AMO", "work": "첫 걸음", "coder": "백코더", "link": "https://docs.google.com/presentation/d/1vGZYZNpggBYHy_5SRNvzJI2l3HUttO16?rtpof=true&usp=drive_fs", "award": null}, {"id": "w011", "stage": "본선", "field": "복지혜택", "team": "드리미", "work": "드리미", "coder": "흑코더", "link": "https://drive.google.com/open?id=1qytEVvwJwWEAAgsyd-61mnVeti832_7Z&usp=drive_fs", "award": null}, {"id": "w012", "stage": "본선", "field": "복지혜택", "team": "That Girls!(댓걸즈)", "work": "닿다", "coder": "흑코더", "link": "https://drive.google.com/open?id=18AkM1Bk-WCWYHBxGzn_ZvXKb1sZCsWhB&usp=drive_fs", "award": null}, {"id": "w013", "stage": "본선", "field": "생활안전", "team": "큐알라(QRla)", "work": "안전하루", "coder": "백코더", "link": "https://drive.google.com/open?id=1G6Ydwh56ZlmRShuChMQidXRFF4sJ7c7l&usp=drive_fs", "award": null}, {"id": "w014", "stage": "본선", "field": "생활안전", "team": "식약처 임상연구과", "work": "바로", "coder": "백코더", "link": "https://docs.google.com/presentation/d/1dPnQjKhP3t4qLfZKArRIlveo5kNKmN9I?rtpof=true&usp=drive_fs", "award": null}, {"id": "w015", "stage": "본선", "field": "생활안전", "team": "천리안", "work": "천리안", "coder": "백코더", "link": "https://drive.google.com/open?id=1-B3V86P_UYtCPK1Uts2GypiV25LwLI-9&usp=drive_fs", "award": null}, {"id": "w016", "stage": "본선", "field": "생활안전", "team": "동동즈", "work": "AI 안심 땅땅", "coder": "백코더", "link": "https://drive.google.com/open?id=1v_Pl8vKCNPE1rZLd6TCEktMm10Ri1swG&usp=drive_fs", "award": null}, {"id": "w017", "stage": "본선", "field": "생활안전", "team": "NEXTPUBLIC", "work": "닿다", "coder": "흑코더", "link": "https://drive.google.com/open?id=1aPTWGl3ScCJA-CoGPSQZ3_n1SElUEzOU&usp=drive_fs", "award": null}, {"id": "w018", "stage": "본선", "field": "생활안전", "team": "ZOOX", "work": "국민지킴이", "coder": "흑코더", "link": "https://drive.google.com/open?id=1T3IynTaXhikxrRIJupiIID-5NOVTILjy&usp=drive_fs", "award": null}, {"id": "w019", "stage": "본선", "field": "생활안전", "team": "거북이, 느려도 좋아", "work": "AI기반 공사 알림 서비스", "coder": "백코더", "link": "https://drive.google.com/open?id=1j8m0yM29TRRsdPlBDvLO_d6TnGYi_VFJ&usp=drive_fs", "award": null}, {"id": "w020", "stage": "본선", "field": "생활안전", "team": "Deep Think", "work": "산행 안전 지도", "coder": "흑코더", "link": "https://drive.google.com/open?id=1K2FlymRtwUT5UeXrUGQhkuo13gqvP_LI&usp=drive_fs", "award": null}, {"id": "w021", "stage": "본선", "field": "생활안전", "team": "모모(MohwMohw)", "work": "살핌이", "coder": "흑코더", "link": "https://drive.google.com/open?id=1f20dT-AJKKs6wlIa-Zcr_yBatfXgepjQ&usp=drive_fs", "award": null}, {"id": "w022", "stage": "본선", "field": "생활안전", "team": "G-Lab", "work": "안전신호", "coder": "백코더", "link": "https://docs.google.com/presentation/d/1oYFTpBVEFH7jgxd5A8xsdFRvZ5Q-2rBY?rtpof=true&usp=drive_fs", "award": null}, {"id": "w023", "stage": "본선", "field": "생활안전", "team": "쭈구미", "work": "수호야, 그 문 아니야", "coder": "흑코더", "link": "https://docs.google.com/presentation/d/1WnxDfXXgQwxUd27Wi2UMacimjA5yWGZO?rtpof=true&usp=drive_fs", "award": null}, {"id": "w024", "stage": "본선", "field": "생활안전", "team": "지금응급", "work": "오늘도 무사히", "coder": "흑코더", "link": "https://drive.google.com/open?id=1E6rzYjw5tP9-jrNKYvtvXxh1JhjBEBLd&usp=drive_fs", "award": null}, {"id": "w025", "stage": "결선", "field": "생활안전", "team": "동동즈", "work": "쨍하고 해뜰날", "coder": "백코더", "link": "https://drive.google.com/open?id=1i6r0xyqZ4mmfyte1ykGzSLEgQtvbLoTY&usp=drive_fs", "award": "대상"}, {"id": "w026", "stage": "결선", "field": "복지혜택", "team": "아들넷딸둘", "work": "아빠햬", "coder": "백코더", "link": "https://drive.google.com/open?id=11lMaAqDAEnnqG0FLLlIUFUVh_okjtSb9&usp=drive_fs", "award": "최우수상"}, {"id": "w027", "stage": "결선", "field": "복지혜택", "team": "보듬", "work": "대국민 지역정착 지원 서비스", "coder": "흑코더", "link": "https://drive.google.com/open?id=16y-xLiUn2Y3De39-MaJ9nX-DaAVm3C7D&usp=drive_fs", "award": "우수상"}, {"id": "w028", "stage": "결선", "field": "복지혜택", "team": "이어드림", "work": "우리집", "coder": "흑코더", "link": "https://drive.google.com/open?id=1tvK01jyQ9EjJR4D2mfwzl_GFh5KpdOa_&usp=drive_fs", "award": "우수상"}, {"id": "w029", "stage": "결선", "field": "생활안전", "team": "지금응급", "work": "달라지는 우리동네", "coder": "흑코더", "link": "https://drive.google.com/open?id=1WAN6kYVFsXxShIv_XyTfothTl4aIP-4g&usp=drive_fs", "award": "우수상"}, {"id": "w030", "stage": "결선", "field": "복지혜택", "team": "드리미", "work": "다우리", "coder": "흑코더", "link": "https://drive.google.com/open?id=1AvTcVAzJUDOSRnKnjTl9wjUHqXt6XBoM&usp=drive_fs", "award": "장려상"}, {"id": "w031", "stage": "결선", "field": "생활안전", "team": "쭈구미", "work": "동네 입덕", "coder": "흑코더", "link": "https://drive.google.com/open?id=14WwsbKzN9Qr20RgabL3SdwGOkM_pz-af&usp=drive_fs", "award": "장려상"}, {"id": "w032", "stage": "결선", "field": "생활안전", "team": "모모(MohwMohw)", "work": "고루", "coder": "흑코더", "link": "https://drive.google.com/open?id=14sOiK6xZ8Z_t1qMEjX9RleVUA3bXgu-w&usp=drive_fs", "award": "장려상"}]
+;
+const STORAGE_KEY = 'hackathon_works_v2';
+const ADMIN_PW = 'admin2026';
+
+let state = { stage:'본선', field:'전체', search:'', admin:false, editingId:null };
+
+function loadData(){
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if(raw){ try{ return JSON.parse(raw); }catch(e){ return structuredClone(SEED_DATA); } }
+  return structuredClone(SEED_DATA);
+}
+function saveData(data){ localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }
+let DATA = loadData();
+
+function toast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(t._timer); t._timer = setTimeout(()=>t.classList.remove('show'), 1800);
+}
+function escapeHTML(s){ const d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
+function coderChip(coder){
+  const isWhite = coder === '백코더';
+  const cls = isWhite ? 'chip-coder-백' : 'chip-coder-흑';
+  const icon = isWhite ? '⚪' : '⚫';
+  return `<span class="chip-coder ${cls}">${icon} ${coder}</span>`;
+}
+
+const AWARD_ORDER = ['대상','최우수상','우수상','장려상'];
+const TIER_META = {
+  '대상':   {cls:'grand',     label:'GRAND PRIZE', medal:'🥇'},
+  '최우수상':{cls:'excellent', label:'EXCELLENCE',  medal:'🥈'},
+  '우수상': {cls:'superior',  label:'SUPERIOR',    medal:'🥉'},
+  '장려상': {cls:'encourage', label:'ENCOURAGEMENT',medal:'🎖️'},
+};
+const FIELD_ICON = { '생활안전':'🛡️', '복지혜택':'🤝' };
+function fieldBadge(field, extraStyle){
+  const style = extraStyle ? ` style="${extraStyle}"` : '';
+  return `<span class="badge badge-field-${field}"${style}>${FIELD_ICON[field]||''} ${field}</span>`;
+}
+function fieldIcon(field){
+  return `<span class="field-icon field-icon-${field}" title="${field}">${FIELD_ICON[field]||''}</span>`;
+}
+
+function finalTeamNames(){
+  return new Set(DATA.filter(d=>d.stage==='결선').map(d=>d.team));
+}
+
+function renderStats(){
+  const semi = DATA.filter(d=>d.stage==='본선').length;
+  const final = DATA.filter(d=>d.stage==='결선').length;
+  const awarded = DATA.filter(d=>d.award).length;
+  const stats = [
+    ['본선 진출', semi],
+    ['결선 진출', final],
+    ['수상작', awarded],
+  ];
+  document.getElementById('statRow').innerHTML = stats.map(([lbl,num])=>`
+    <div class="stat-tile"><div class="num gd">${num}</div><div class="lbl">${lbl}</div></div>
+  `).join('');
+  document.getElementById('cnt-본선').textContent = `${semi}`;
+  document.getElementById('cnt-결선').textContent = `${final}`;
+}
+
+/* ---------- semifinal (본선) grid ---------- */
+function matchesSemi(d){
+  if(d.stage !== '본선') return false;
+  if(state.field !== '전체' && d.field !== state.field) return false;
+  if(state.search){
+    const q = state.search.toLowerCase();
+    if(!(d.team.toLowerCase().includes(q) || d.work.toLowerCase().includes(q))) return false;
+  }
+  return true;
+}
+
+function semiCardHTML(d, advancedSet){
+  const advanced = advancedSet.has(d.team);
+  const adminActions = state.admin ? `
+    <div class="admin-actions">
+      <button class="icon-btn edit" data-id="${d.id}" title="수정">✎</button>
+      <button class="icon-btn del" data-id="${d.id}" title="삭제">🗑</button>
+    </div>` : '';
+  return `
+  <div class="card" data-id="${d.id}">
+    <div class="card-top">
+      <span class="card-id mono">No. ${d.id.replace('w','')}</span>
+      <div class="badges">
+        ${advanced ? '<span class="badge badge-advance">결선 진출</span>' : ''}
+        ${fieldIcon(d.field)}
+      </div>
+    </div>
+    <p class="card-title">${escapeHTML(d.work)}</p>
+    <p class="card-team"><b>${escapeHTML(d.team)}</b> 팀</p>
+    <div class="card-bottom">
+      ${coderChip(d.coder)}
+      <div style="display:flex; gap:8px; align-items:center;">
+        <a class="link-btn" href="${d.link}" target="_blank" rel="noopener">↗ 작품 보기</a>
+        ${adminActions}
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderSemi(){
+  const items = DATA.filter(matchesSemi);
+  const advancedSet = finalTeamNames();
+  let html = '';
+
+  if(items.length === 0){
+    html += `<div class="empty-state">조건에 맞는 작품이 없습니다.</div>`;
+  } else if(state.field === '전체'){
+    ['생활안전','복지혜택'].forEach(f=>{
+      const group = items.filter(d=>d.field===f);
+      if(group.length===0) return;
+      html += `<div class="section-head">${fieldBadge(f, 'font-size:12px;padding:5px 10px;')}<span class="line"></span><span class="cnt">${group.length}팀</span></div>`;
+      html += `<div class="grid" style="margin-bottom:28px;">${group.map(d=>semiCardHTML(d,advancedSet)).join('')}</div>`;
+    });
+  } else {
+    html += `<div class="grid">${items.map(d=>semiCardHTML(d,advancedSet)).join('')}</div>`;
+  }
+
+  if(state.admin){
+    html += `<div class="grid" style="margin-top:${items.length?0:14}px;"><div class="add-card" id="addCardBtn">+ 새 작품 추가</div></div>`;
+  }
+  document.getElementById('content').innerHTML = html;
+  bindGridEvents();
+}
+
+/* ---------- final (결선) podium ---------- */
+function matchesFinalSearch(d){
+  if(!state.search) return true;
+  const q = state.search.toLowerCase();
+  return d.team.toLowerCase().includes(q) || d.work.toLowerCase().includes(q);
+}
+
+function awardCardHTML(d, tierCls){
+  const meta = TIER_META[d.award];
+  const adminActions = state.admin ? `
+    <div class="admin-actions">
+      <button class="icon-btn edit" data-id="${d.id}" title="수정">✎</button>
+      <button class="icon-btn del" data-id="${d.id}" title="삭제">🗑</button>
+    </div>` : '';
+  return `
+  <div class="award-card ${tierCls}" data-id="${d.id}">
+    <div class="award-card-inner">
+      <span class="award-rank-label">${meta.medal} ${meta.label}</span>
+      <p class="card-title">${escapeHTML(d.work)}</p>
+      <p class="card-team"><b>${escapeHTML(d.team)}</b> 팀</p>
+      <div class="meta-row">
+        ${fieldIcon(d.field)}
+        ${coderChip(d.coder)}
+      </div>
+      <div class="bottom-row">
+        <a class="link-btn" href="${d.link}" target="_blank" rel="noopener">↗ 작품 보기</a>
+        ${adminActions}
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderFinal(){
+  const items = DATA.filter(d=>d.stage==='결선' && matchesFinalSearch(d));
+  let html = `
+    <div class="podium-intro">
+      <div class="eyebrow"><span class="dot"></span>FINAL RESULTS</div>
+      <h2>결선 수상작</h2>
+      <p>분야 구분 없이 겨룬 결선 8팀의 성적입니다. 대상 1팀, 최우수상 1팀, 우수상 3팀, 장려상 3팀이 선정되었습니다.</p>
+    </div>
+  `;
+
+  if(items.length === 0){
+    html += `<div class="empty-state">조건에 맞는 작품이 없습니다.</div>`;
+  } else {
+    AWARD_ORDER.forEach(award=>{
+      const group = items.filter(d=>d.award===award);
+      if(group.length===0) return;
+      const meta = TIER_META[award];
+      html += `
+        <div class="tier tier-${meta.cls}">
+          <div class="tier-head"><span class="medal">${meta.medal}</span><span class="kr">${award}</span><span class="name mono">${meta.label}</span></div>
+          <div class="tier-grid">${group.map(d=>awardCardHTML(d, meta.cls)).join('')}</div>
+        </div>
+      `;
+    });
+  }
+
+  if(state.admin){
+    html += `<div class="grid" style="margin-top:10px;"><div class="add-card" id="addCardBtn">+ 새 작품 추가 (결선)</div></div>`;
+  }
+  document.getElementById('content').innerHTML = html;
+  bindGridEvents();
+}
+
+function bindGridEvents(){
+  document.querySelectorAll('.icon-btn.edit').forEach(btn=>btn.addEventListener('click', ()=>openModal(btn.dataset.id)));
+  document.querySelectorAll('.icon-btn.del').forEach(btn=>btn.addEventListener('click', ()=>deleteWork(btn.dataset.id)));
+  const addBtn = document.getElementById('addCardBtn');
+  if(addBtn) addBtn.addEventListener('click', ()=>openModal(null));
+}
+
+/* ---------- unified search (all works, regardless of tab/field) ---------- */
+function searchCardHTML(d){
+  const adminActions = state.admin ? `
+    <div class="admin-actions">
+      <button class="icon-btn edit" data-id="${d.id}" title="수정">✎</button>
+      <button class="icon-btn del" data-id="${d.id}" title="삭제">🗑</button>
+    </div>` : '';
+  const awardBadge = d.award ? `<span class="badge badge-award-${d.award}">${TIER_META[d.award].medal} ${d.award}</span>` : '';
+  return `
+  <div class="card" data-id="${d.id}">
+    <div class="card-top">
+      <span class="card-id mono">No. ${d.id.replace('w','')}</span>
+      <div class="badges">
+        <span class="badge badge-stage${d.stage==='결선'?' badge-stage-결선':''}">${d.stage}</span>
+        ${awardBadge}
+        ${fieldIcon(d.field)}
+      </div>
+    </div>
+    <p class="card-title">${escapeHTML(d.work)}</p>
+    <p class="card-team"><b>${escapeHTML(d.team)}</b> 팀</p>
+    <div class="card-bottom">
+      ${coderChip(d.coder)}
+      <div style="display:flex; gap:8px; align-items:center;">
+        <a class="link-btn" href="${d.link}" target="_blank" rel="noopener">↗ 작품 보기</a>
+        ${adminActions}
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderSearchResults(){
+  const q = state.search.toLowerCase();
+  const items = DATA.filter(d=>d.team.toLowerCase().includes(q) || d.work.toLowerCase().includes(q));
+  let html = `
+    <div class="search-result-head">
+      <div class="eyebrow" style="justify-content:center;"><span class="dot"></span>SEARCH</div>
+      <p>"<b>${escapeHTML(state.search)}</b>" 검색 결과 · 본선·결선 전체 작품 대상 <b>${items.length}건</b></p>
+    </div>
+  `;
+  if(items.length === 0){
+    html += `<div class="empty-state">일치하는 작품이 없습니다.</div>`;
+  } else {
+    html += `<div class="grid">${items.map(searchCardHTML).join('')}</div>`;
+  }
+  document.getElementById('content').innerHTML = html;
+  bindGridEvents();
+}
+
+function render(){
+  renderStats();
+  if(state.search){
+    document.getElementById('fieldPills').style.display = 'none';
+    renderSearchResults();
+    return;
+  }
+  document.getElementById('fieldPills').style.display = state.stage === '본선' ? 'flex' : 'none';
+  if(state.stage === '본선') renderSemi(); else renderFinal();
+}
+
+/* ---------- CRUD ---------- */
+function deleteWork(id){
+  const item = DATA.find(d=>d.id===id);
+  if(!item) return;
+  if(!confirm(`"${item.work}" (${item.team}) 작품을 삭제할까요?`)) return;
+  DATA = DATA.filter(d=>d.id!==id);
+  saveData(DATA);
+  toast('작품이 삭제되었습니다.');
+  render();
+}
+
+function openModal(id){
+  state.editingId = id;
+  const overlay = document.getElementById('overlay');
+  const title = document.getElementById('modalTitle');
+  const form = document.getElementById('workForm');
+  form.reset();
+  if(id){
+    const d = DATA.find(x=>x.id===id);
+    title.textContent = '작품 수정';
+    document.getElementById('f-stage').value = d.stage;
+    document.getElementById('f-field').value = d.field;
+    document.getElementById('f-team').value = d.team;
+    document.getElementById('f-work').value = d.work;
+    document.getElementById('f-coder').value = d.coder;
+    document.getElementById('f-award').value = d.award || '';
+    document.getElementById('f-link').value = d.link;
+  } else {
+    title.textContent = '작품 추가';
+    document.getElementById('f-stage').value = state.stage;
+    document.getElementById('f-field').value = state.field !== '전체' ? state.field : '생활안전';
+  }
+  overlay.classList.add('show');
+}
+function closeModal(){ document.getElementById('overlay').classList.remove('show'); state.editingId=null; }
+
+document.getElementById('workForm').addEventListener('submit', (e)=>{
+  e.preventDefault();
+  const payload = {
+    stage: document.getElementById('f-stage').value,
+    field: document.getElementById('f-field').value,
+    team: document.getElementById('f-team').value.trim(),
+    work: document.getElementById('f-work').value.trim(),
+    coder: document.getElementById('f-coder').value,
+    award: document.getElementById('f-award').value || null,
+    link: document.getElementById('f-link').value.trim(),
+  };
+  if(state.editingId){
+    const idx = DATA.findIndex(d=>d.id===state.editingId);
+    DATA[idx] = {...DATA[idx], ...payload};
+    toast('작품이 수정되었습니다.');
+  } else {
+    const nextNum = DATA.reduce((m,d)=>Math.max(m, parseInt(d.id.replace('w',''))||0), 0) + 1;
+    payload.id = 'w' + String(nextNum).padStart(3,'0');
+    DATA.push(payload);
+    toast('작품이 추가되었습니다.');
+  }
+  saveData(DATA);
+  closeModal();
+  render();
+});
+document.getElementById('cancelBtn').addEventListener('click', closeModal);
+document.getElementById('overlay').addEventListener('click', (e)=>{ if(e.target.id==='overlay') closeModal(); });
+
+/* ---------- nav ---------- */
+document.getElementById('stageSwitch').addEventListener('click', (e)=>{
+  const btn = e.target.closest('.stage-btn');
+  if(!btn) return;
+  document.querySelectorAll('.stage-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  state.stage = btn.dataset.stage;
+  render();
+});
+document.getElementById('fieldPills').addEventListener('click', (e)=>{
+  const btn = e.target.closest('.pill');
+  if(!btn) return;
+  document.querySelectorAll('.pill').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  state.field = btn.dataset.field;
+  render();
+});
+document.getElementById('searchInput').addEventListener('input', (e)=>{
+  state.search = e.target.value.trim();
+  render();
+});
+
+/* ---------- admin ---------- */
+function setAdminUI(){
+  const zone = document.getElementById('adminZone');
+  if(state.admin){
+    zone.innerHTML = `
+      <button class="btn btn-amber btn-sm" id="resetBtn">↺ 초기화</button>
+      <button class="btn btn-ghost" id="adminBtn">🔓 종료</button>
+    `;
+    document.getElementById('resetBtn').addEventListener('click', ()=>{
+      if(confirm('모든 변경사항을 지우고 초기 데이터로 되돌릴까요?')){
+        localStorage.removeItem(STORAGE_KEY);
+        DATA = structuredClone(SEED_DATA);
+        toast('초기 데이터로 복원되었습니다.');
+        render();
+      }
+    });
+    document.getElementById('adminBtn').addEventListener('click', toggleAdmin);
+  } else {
+    zone.innerHTML = `<button class="btn btn-ghost" id="adminBtn">🔒 관리자 모드</button>`;
+    document.getElementById('adminBtn').addEventListener('click', toggleAdmin);
+  }
+}
+function toggleAdmin(){
+  if(state.admin){ state.admin=false; setAdminUI(); render(); return; }
+  const zone = document.getElementById('adminZone');
+  zone.innerHTML = `
+    <div class="pw-box">
+      <input type="password" id="pwInput" placeholder="관리자 비밀번호">
+      <button class="btn btn-amber btn-sm" id="pwGoBtn">확인</button>
+      <button class="btn btn-ghost btn-sm" id="pwCancelBtn">✕</button>
+    </div>`;
+  const input = document.getElementById('pwInput');
+  input.focus();
+  const attempt = ()=>{
+    if(input.value === ADMIN_PW){
+      state.admin = true; setAdminUI(); render(); toast('관리자 모드가 활성화되었습니다.');
+    } else { toast('비밀번호가 올바르지 않습니다.'); setAdminUI(); }
+  };
+  document.getElementById('pwGoBtn').addEventListener('click', attempt);
+  document.getElementById('pwCancelBtn').addEventListener('click', setAdminUI);
+  input.addEventListener('keydown', (e)=>{ if(e.key==='Enter') attempt(); });
+}
+document.getElementById('adminBtn').addEventListener('click', toggleAdmin);
+
+render();
+</script>
+</body>
+</html>
