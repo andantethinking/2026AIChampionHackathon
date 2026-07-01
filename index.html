@@ -404,8 +404,12 @@
         </div>
       </div>
       <div class="field">
-        <label>작품 링크 (Google Drive)</label>
+        <label>발표자료 링크 (e-Book 등)</label>
         <input type="url" id="f-link" required placeholder="https://drive.google.com/...">
+      </div>
+      <div class="field">
+        <label>개발물 링크 (선택, 실제 서비스/배포 주소)</label>
+        <input type="url" id="f-devLink" placeholder="https://example.vercel.app">
       </div>
       <div class="modal-actions">
         <button type="button" class="btn btn-outline" id="cancelBtn">취소</button>
@@ -418,7 +422,7 @@
 <div class="toast" id="toast"></div>
 
 <script>
-const SEED_DATA = [{"id": "w001", "stage": "본선", "field": "복지혜택", "team": "복지강박증", "work": "복지마중", "coder": "백코더", "link": "http://ebook.kbrainc.com/books/bunx/", "award": null}, {"id": "w002", "stage": "본선", "field": "복지혜택", "team": "안양시그널(Signal)", "work": "(  ) 보다", "coder": "흑코더", "link": "http://ebook.kbrainc.com/books/ngxu/", "award": null}, {"id": "w003", "stage": "본선", "field": "복지혜택", "team": "C.A.R.E", "work": "C.A.R.E", "coder": "흑코더", "link": "http://ebook.kbrainc.com/books/uini/", "award": null}, {"id": "w004", "stage": "본선", "field": "복지혜택", "team": "이어드림", "work": "우리집", "coder": "흑코더", "link": "http://ebook.kbrainc.com/books/uatm/", "award": null}, {"id": "w005", "stage": "본선", "field": "복지혜택", "team": "TaxSolve", "work": "복지다모아", "coder": "백코더", "link": "http://ebook.kbrainc.com/books/pvtn/", "award": null}, {"id": "w006", "stage": "본선", "field": "복지혜택", "team": "보듬", "work": "보듬", "coder": "흑코더", "link": "http://ebook.kbrainc.com/books/zspb/", "award": null}, {"id": "w007", "stage": "본선", "field": "복지혜택", "team": "일석이조", "work": "복지 One-GOV", "coder": "백코더", "link": "http://ebook.kbrainc.com/books/atpt/", "award": null}, {"id": "w008", "stage": "본선", "field": "복지혜택", "team": "아들넷딸둘", "work": "i-care 페이스메이커", "coder": "백코더", "link": "http://ebook.kbrainc.com/books/eftb/", "award": null}, {"id": "w009", "stage": "본선", "field": "복지혜택", "team": "AI 기반 新 안전신문고 서비스", "work": "신 안전신문고 서비스", "coder": "백코더", "link": "materials/bokji_sinanjun.html", "award": null}, {"id": "w010", "stage": "본선", "field": "복지혜택", "team": "Team AMO", "work": "첫 걸음", "coder": "백코더", "link": "http://ebook.kbrainc.com/books/dpns/", "award": null}, {"id": "w011", "stage": "본선", "field": "복지혜택", "team": "드리미", "work": "드리미", "coder": "흑코더", "link": "materials/bokji_Drimi.html", "award": null}, {"id": "w012", "stage": "본선", "field": "복지혜택", "team": "That Girls!(댓걸즈)", "work": "닿다", "coder": "흑코더", "link": "http://ebook.kbrainc.com/books/hcex/", "award": null}, {"id": "w013", "stage": "본선", "field": "생활안전", "team": "큐알라(QRla)", "work": "안전하루", "coder": "백코더", "link": "http://ebook.kbrainc.com/books/adxx/", "award": null}, {"id": "w014", "stage": "본선", "field": "생활안전", "team": "식약처 임상연구과", "work": "바로", "coder": "백코더", "link": "http://ebook.kbrainc.com/books/jcfe/", "award": null}, {"id": "w015", "stage": "본선", "field": "생활안전", "team": "천리안", "work": "천리안", "coder": "백코더", "link": "materials/sang_chunrian.html", "award": null}, {"id": "w016", "stage": "본선", "field": "생활안전", "team": "동동즈", "work": "AI 안심 땅땅", "coder": "백코더", "link": "http://ebook.kbrainc.com/books/bfma/", "award": null}, {"id": "w017", "stage": "본선", "field": "생활안전", "team": "NEXTPUBLIC", "work": "닿다", "coder": "흑코더", "link": "materials/sang_NEXTPUBLIC.html", "award": null}, {"id": "w018", "stage": "본선", "field": "생활안전", "team": "ZOOX", "work": "국민지킴이", "coder": "흑코더", "link": "http://ebook.kbrainc.com/books/ggzz/", "award": null}, {"id": "w019", "stage": "본선", "field": "생활안전", "team": "거북이, 느려도 좋아", "work": "AI기반 공사 알림 서비스", "coder": "백코더", "link": "http://ebook.kbrainc.com/books/qrhg/", "award": null}, {"id": "w020", "stage": "본선", "field": "생활안전", "team": "Deep Think", "work": "산행 안전 지도", "coder": "흑코더", "link": "http://ebook.kbrainc.com/books/trbh/", "award": null}, {"id": "w021", "stage": "본선", "field": "생활안전", "team": "모모(MohwMohw)", "work": "살핌이", "coder": "흑코더", "link": "http://ebook.kbrainc.com/books/pzha/", "award": null}, {"id": "w022", "stage": "본선", "field": "생활안전", "team": "G-Lab", "work": "안전신호", "coder": "백코더", "link": "http://ebook.kbrainc.com/books/ybdq/", "award": null}, {"id": "w023", "stage": "본선", "field": "생활안전", "team": "쭈구미", "work": "수호야, 그 문 아니야", "coder": "흑코더", "link": "http://ebook.kbrainc.com/books/vkxs/", "award": null}, {"id": "w024", "stage": "본선", "field": "생활안전", "team": "지금응급", "work": "오늘도 무사히", "coder": "흑코더", "link": "http://ebook.kbrainc.com/books/brge/", "award": null}, {"id": "w025", "stage": "결선", "field": "생활안전", "team": "동동즈", "work": "쨍하고 해뜰날", "coder": "백코더", "link": "http://ebook.kbrainc.com/books/udba/", "award": "대상"}, {"id": "w026", "stage": "결선", "field": "복지혜택", "team": "아들넷딸둘", "work": "아빠햬", "coder": "백코더", "link": "http://ebook.kbrainc.com/books/jdxj/", "award": "최우수상"}, {"id": "w027", "stage": "결선", "field": "복지혜택", "team": "보듬", "work": "대국민 지역정착 지원 서비스", "coder": "흑코더", "link": "http://ebook.kbrainc.com/books/bxxv/", "award": "우수상"}, {"id": "w028", "stage": "결선", "field": "복지혜택", "team": "이어드림", "work": "우리집", "coder": "흑코더", "link": "http://ebook.kbrainc.com/books/smwp/", "award": "우수상"}, {"id": "w029", "stage": "결선", "field": "생활안전", "team": "지금응급", "work": "달라지는 우리동네", "coder": "흑코더", "link": "http://ebook.kbrainc.com/books/ryky/", "award": "우수상"}, {"id": "w030", "stage": "결선", "field": "복지혜택", "team": "드리미", "work": "다우리", "coder": "흑코더", "link": "materials/Final_Drimi.html", "award": "장려상"}, {"id": "w031", "stage": "결선", "field": "생활안전", "team": "쭈구미", "work": "동네 입덕", "coder": "흑코더", "link": "http://ebook.kbrainc.com/books/skip/", "award": "장려상"}, {"id": "w032", "stage": "결선", "field": "생활안전", "team": "모모(MohwMohw)", "work": "고루", "coder": "흑코더", "link": "http://ebook.kbrainc.com/books/rakr/", "award": "장려상"}];
+const SEED_DATA = [{"id": "w001", "stage": "본선", "field": "복지혜택", "team": "복지강박증", "work": "복지마중", "coder": "백코더", "link": "http://ebook.kbrainc.com/books/bunx/", "award": null, "devLink": null}, {"id": "w002", "stage": "본선", "field": "복지혜택", "team": "안양시그널(Signal)", "work": "(  ) 보다", "coder": "흑코더", "link": "http://ebook.kbrainc.com/books/ngxu/", "award": null, "devLink": "https://cdsa.site/s/3z3en/"}, {"id": "w003", "stage": "본선", "field": "복지혜택", "team": "C.A.R.E", "work": "C.A.R.E", "coder": "흑코더", "link": "http://ebook.kbrainc.com/books/uini/", "award": null, "devLink": "https://hackertoncare.vercel.app/"}, {"id": "w004", "stage": "본선", "field": "복지혜택", "team": "이어드림", "work": "우리집", "coder": "흑코더", "link": "http://ebook.kbrainc.com/books/uatm/", "award": null, "devLink": "https://condream.vercel.app/"}, {"id": "w005", "stage": "본선", "field": "복지혜택", "team": "TaxSolve", "work": "복지다모아", "coder": "백코더", "link": "http://ebook.kbrainc.com/books/pvtn/", "award": null, "devLink": null}, {"id": "w006", "stage": "본선", "field": "복지혜택", "team": "보듬", "work": "보듬", "coder": "흑코더", "link": "http://ebook.kbrainc.com/books/zspb/", "award": null, "devLink": "https://bodeum.app"}, {"id": "w007", "stage": "본선", "field": "복지혜택", "team": "일석이조", "work": "복지 One-GOV", "coder": "백코더", "link": "http://ebook.kbrainc.com/books/atpt/", "award": null, "devLink": "https://1stone2.vercel.app/"}, {"id": "w008", "stage": "본선", "field": "복지혜택", "team": "아들넷딸둘", "work": "i-care 페이스메이커", "coder": "백코더", "link": "http://ebook.kbrainc.com/books/eftb/", "award": null, "devLink": "https://childcare-pacemaker.vercel.app/"}, {"id": "w009", "stage": "본선", "field": "복지혜택", "team": "AI 기반 新 안전신문고 서비스", "work": "신 안전신문고 서비스", "coder": "백코더", "link": "materials/bokji_sinanjun.html", "award": null, "devLink": "https://ai-hackerton-new.vercel.app"}, {"id": "w010", "stage": "본선", "field": "복지혜택", "team": "Team AMO", "work": "첫 걸음", "coder": "백코더", "link": "http://ebook.kbrainc.com/books/dpns/", "award": null, "devLink": "https://www.projectamo.co.kr"}, {"id": "w011", "stage": "본선", "field": "복지혜택", "team": "드리미", "work": "드리미", "coder": "흑코더", "link": "materials/bokji_Drimi.html", "award": null, "devLink": null}, {"id": "w012", "stage": "본선", "field": "복지혜택", "team": "That Girls!(댓걸즈)", "work": "닿다", "coder": "흑코더", "link": "http://ebook.kbrainc.com/books/hcex/", "award": null, "devLink": "https://touchwelfare.lovable.app"}, {"id": "w013", "stage": "본선", "field": "생활안전", "team": "큐알라(QRla)", "work": "안전하루", "coder": "백코더", "link": "http://ebook.kbrainc.com/books/adxx/", "award": null, "devLink": "https://43.202.140.92/"}, {"id": "w014", "stage": "본선", "field": "생활안전", "team": "식약처 임상연구과", "work": "바로", "coder": "백코더", "link": "http://ebook.kbrainc.com/books/jcfe/", "award": null, "devLink": "https://safe-baro.netlify.app/"}, {"id": "w015", "stage": "본선", "field": "생활안전", "team": "천리안", "work": "천리안", "coder": "백코더", "link": "materials/sang_chunrian.html", "award": null, "devLink": "heatwave-safety-map.vercel.app"}, {"id": "w016", "stage": "본선", "field": "생활안전", "team": "동동즈", "work": "AI 안심 땅땅", "coder": "백코더", "link": "http://ebook.kbrainc.com/books/bfma/", "award": null, "devLink": "https://dongdong7704.netlify.app/"}, {"id": "w017", "stage": "본선", "field": "생활안전", "team": "NEXTPUBLIC", "work": "닿다", "coder": "흑코더", "link": "materials/sang_NEXTPUBLIC.html", "award": null, "devLink": null}, {"id": "w018", "stage": "본선", "field": "생활안전", "team": "ZOOX", "work": "국민지킴이", "coder": "흑코더", "link": "http://ebook.kbrainc.com/books/ggzz/", "award": null, "devLink": "https://safehome-alert.vercel.app/"}, {"id": "w019", "stage": "본선", "field": "생활안전", "team": "거북이, 느려도 좋아", "work": "AI기반 공사 알림 서비스", "coder": "백코더", "link": "http://ebook.kbrainc.com/books/qrhg/", "award": null, "devLink": "https://turtle-gold.vercel.app/"}, {"id": "w020", "stage": "본선", "field": "생활안전", "team": "Deep Think", "work": "산행 안전 지도", "coder": "흑코더", "link": "http://ebook.kbrainc.com/books/trbh/", "award": null, "devLink": "https://safe-mountain.vercel.app/"}, {"id": "w021", "stage": "본선", "field": "생활안전", "team": "모모(MohwMohw)", "work": "살핌이", "coder": "흑코더", "link": "http://ebook.kbrainc.com/books/pzha/", "award": null, "devLink": "https://team-momo.vercel.app/"}, {"id": "w022", "stage": "본선", "field": "생활안전", "team": "G-Lab", "work": "안전신호", "coder": "백코더", "link": "http://ebook.kbrainc.com/books/ybdq/", "award": null, "devLink": "https://safety-radius-vercel-glab1.vercel.app/"}, {"id": "w023", "stage": "본선", "field": "생활안전", "team": "쭈구미", "work": "수호야, 그 문 아니야", "coder": "흑코더", "link": "http://ebook.kbrainc.com/books/vkxs/", "award": null, "devLink": "https://tinyurl.com/jugumi"}, {"id": "w024", "stage": "본선", "field": "생활안전", "team": "지금응급", "work": "오늘도 무사히", "coder": "흑코더", "link": "http://ebook.kbrainc.com/books/brge/", "award": null, "devLink": "https://odmsafety.vercel.app/"}, {"id": "w025", "stage": "결선", "field": "생활안전", "team": "동동즈", "work": "쨍하고 해뜰날", "coder": "백코더", "link": "http://ebook.kbrainc.com/books/udba/", "award": "대상", "devLink": "https://sun-flax.vercel.app/"}, {"id": "w026", "stage": "결선", "field": "복지혜택", "team": "아들넷딸둘", "work": "아빠GO", "coder": "백코더", "link": "http://ebook.kbrainc.com/books/jdxj/", "award": "최우수상", "devLink": "https://jundamin.github.io/appa-go/"}, {"id": "w027", "stage": "결선", "field": "복지혜택", "team": "보듬", "work": "대국민 지역정착 지원 서비스", "coder": "흑코더", "link": "http://ebook.kbrainc.com/books/bxxv/", "award": "우수상", "devLink": "https://bodeumsettle.app/"}, {"id": "w028", "stage": "결선", "field": "복지혜택", "team": "이어드림", "work": "우리집", "coder": "흑코더", "link": "http://ebook.kbrainc.com/books/smwp/", "award": "우수상", "devLink": "https://ppjm-settle.vercel.app/"}, {"id": "w029", "stage": "결선", "field": "생활안전", "team": "지금응급", "work": "달라지는 우리동네", "coder": "흑코더", "link": "http://ebook.kbrainc.com/books/ryky/", "award": "우수상", "devLink": "https://dongne-navigator.vercel.app"}, {"id": "w030", "stage": "결선", "field": "복지혜택", "team": "드리미", "work": "다우리", "coder": "흑코더", "link": "materials/Final_Drimi.html", "award": "장려상", "devLink": "https://selecting-limiting-attraction-pregnant.trycloudflare.com/"}, {"id": "w031", "stage": "결선", "field": "생활안전", "team": "쭈구미", "work": "동네 입덕", "coder": "흑코더", "link": "http://ebook.kbrainc.com/books/skip/", "award": "장려상", "devLink": "https://tinyurl.com/jugumi2"}, {"id": "w032", "stage": "결선", "field": "생활안전", "team": "모모(MohwMohw)", "work": "고루", "coder": "흑코더", "link": "http://ebook.kbrainc.com/books/rakr/", "award": "장려상", "devLink": "https://goru-momo.vercel.app/"}];
 const STORAGE_KEY = 'hackathon_works_v2';
 const ADMIN_PW = 'admin2026';
 
@@ -438,6 +442,13 @@ function toast(msg){
   clearTimeout(t._timer); t._timer = setTimeout(()=>t.classList.remove('show'), 1800);
 }
 function escapeHTML(s){ const d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
+function materialLinksHTML(d){
+  let html = `<a class="link-btn" href="${d.link}" target="_blank" rel="noopener">↗ 발표자료 보기</a>`;
+  if(d.devLink){
+    html += `<a class="link-btn" href="${d.devLink}" target="_blank" rel="noopener">↗ 개발물 보기</a>`;
+  }
+  return html;
+}
 function coderChip(coder){
   const isWhite = coder === '백코더';
   const cls = isWhite ? 'chip-coder-백' : 'chip-coder-흑';
@@ -512,8 +523,8 @@ function semiCardHTML(d, advancedSet){
     <p class="card-team"><b>${escapeHTML(d.team)}</b> 팀</p>
     <div class="card-bottom">
       ${coderChip(d.coder)}
-      <div style="display:flex; gap:8px; align-items:center;">
-        <a class="link-btn" href="${d.link}" target="_blank" rel="noopener">↗ 작품 보기</a>
+      <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap; justify-content:flex-end;">
+        ${materialLinksHTML(d)}
         ${adminActions}
       </div>
     </div>
@@ -570,7 +581,7 @@ function awardCardHTML(d, tierCls){
         ${coderChip(d.coder)}
       </div>
       <div class="bottom-row">
-        <a class="link-btn" href="${d.link}" target="_blank" rel="noopener">↗ 작품 보기</a>
+        <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">${materialLinksHTML(d)}</div>
         ${adminActions}
       </div>
     </div>
@@ -639,8 +650,8 @@ function searchCardHTML(d){
     <p class="card-team"><b>${escapeHTML(d.team)}</b> 팀</p>
     <div class="card-bottom">
       ${coderChip(d.coder)}
-      <div style="display:flex; gap:8px; align-items:center;">
-        <a class="link-btn" href="${d.link}" target="_blank" rel="noopener">↗ 작품 보기</a>
+      <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap; justify-content:flex-end;">
+        ${materialLinksHTML(d)}
         ${adminActions}
       </div>
     </div>
@@ -703,6 +714,7 @@ function openModal(id){
     document.getElementById('f-coder').value = d.coder;
     document.getElementById('f-award').value = d.award || '';
     document.getElementById('f-link').value = d.link;
+    document.getElementById('f-devLink').value = d.devLink || '';
   } else {
     title.textContent = '작품 추가';
     document.getElementById('f-stage').value = state.stage;
@@ -722,6 +734,7 @@ document.getElementById('workForm').addEventListener('submit', (e)=>{
     coder: document.getElementById('f-coder').value,
     award: document.getElementById('f-award').value || null,
     link: document.getElementById('f-link').value.trim(),
+    devLink: document.getElementById('f-devLink').value.trim() || null,
   };
   if(state.editingId){
     const idx = DATA.findIndex(d=>d.id===state.editingId);
