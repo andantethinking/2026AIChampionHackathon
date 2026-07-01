@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>다우리 — 2026 AI챔피언 해커톤</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      width: 100%; height: 100%; overflow: hidden; background: #000;
+      font-family: 'Pretendard Variable', 'Pretendard', -apple-system, BlinkMacSystemFont,
+        system-ui, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── PROGRESS BAR ── */
+    .progress-bar {
+      position: fixed; top: 0; left: 0; height: 3px; background: #007AFF;
+      transition: width 0.4s cubic-bezier(0.25,0.1,0.25,1); z-index: 1000;
+      border-radius: 0 2px 2px 0; box-shadow: 0 0 8px rgba(0,122,255,0.4);
+    }
+
+    /* ── COUNTER ── */
+    .slide-counter {
+      position: fixed; bottom: 24px; right: 32px; font-size: 13px; font-weight: 500;
+      color: rgba(255,255,255,0.5); z-index: 100; font-variant-numeric: tabular-nums;
+      letter-spacing: 0.5px; transition: color 0.4s;
+    }
+    .slide-counter.on-light { color: rgba(0,0,0,0.35); }
+
+    /* ── HINT ── */
+    .hint {
+      position: fixed; bottom: 24px; left: 32px; display: flex; gap: 8px;
+      align-items: center; z-index: 100; font-size: 12px; color: rgba(255,255,255,0.4);
+      transition: color 0.4s;
+    }
+    .hint.on-light { color: rgba(0,0,0,0.3); }
+    .hint kbd {
+      display: inline-flex; align-items: center; justify-content: center;
+      min-width: 24px; height: 24px; padding: 0 6px; font-size: 11px; font-weight: 500;
+      color: rgba(255,255,255,0.5); background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2); border-radius: 6px;
+    }
+    .hint.on-light kbd { color: rgba(0,0,0,0.4); background: rgba(0,0,0,0.06); border-color: rgba(0,0,0,0.15); }
+
+    /* ── FULLSCREEN BTN ── */
+    .fullscreen-btn {
+      position: fixed; top: 20px; right: 24px; width: 40px; height: 40px;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 10px; color: rgba(255,255,255,0.6); font-size: 18px; cursor: pointer;
+      z-index: 100; transition: all 0.3s; backdrop-filter: blur(8px);
+    }
+    .fullscreen-btn:hover { background: rgba(255,255,255,0.18); color: rgba(255,255,255,0.85); }
+    .fullscreen-btn.on-light { background: rgba(0,0,0,0.06); border-color: rgba(0,0,0,0.12); color: rgba(0,0,0,0.45); }
+
+    /* ── DECK & SLIDES ── */
+    .deck { width: calc(100vw / 1.5); height: calc(100vh / 1.5); position: relative; transform: scale(1.5); transform-origin: top left; }
+    .slide {
+      position: absolute; inset: 0; display: flex; flex-direction: column;
+      justify-content: center; align-items: center; padding: 56px 96px;
+      opacity: 0; visibility: hidden; overflow-y: auto;
+      transition: opacity 0.6s cubic-bezier(0.25,0.1,0.25,1), visibility 0.6s;
+    }
+    .slide.active { opacity: 1; visibility: visible; }
+    .slide-dark     { background: #000; color: #fff; }
+    .slide-gradient { background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460); color: #fff; }
+    .slide-light    { background: #fff; color: #1a1a1a; }
+
+    /* ── STAGGER ANIMATIONS ── */
+    .slide .a {
+      opacity: 0; transform: translateY(28px);
+      transition: opacity 0.6s cubic-bezier(0.25,0.1,0.25,1),
+                  transform 0.6s cubic-bezier(0.25,0.1,0.25,1);
+    }
+    .slide.active .a { opacity: 1; transform: translateY(0); }
+    .slide.active .a:nth-child(1)  { transition-delay: 0.10s; }
+    .slide.active .a:nth-child(2)  { transition-delay: 0.22s; }
+    .slide.active .a:nth-child(3)  { transition-delay: 0.34s; }
+    .slide.active .a:nth-child(4)  { transition-delay: 0.46s; }
+    .slide.active .a:nth-child(5)  { transition-delay: 0.58s; }
+    .slide.active .a:nth-child(6)  { transition-delay: 0.70s; }
+    .slide.active .a:nth-child(7)  { transition-delay: 0.82s; }
+    .slide.active .a:nth-child(8)  { transition-delay: 0.94s; }
+
+    /* ── TYPOGRAPHY ── */
+    .text-gradient {
+      background: linear-gradient(135deg, #007AFF, #5856D6, #AF52DE);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .text-center  { text-align: center; }
+    .text-muted   { opacity: 0.9; }
+    .text-subtle  { opacity: 0.9; }
+    .accent       { color: #007AFF; }
+    .overline {
+      font-size: 14px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 5px; color: #007AFF;
+    }
+
+    /* ── SLIDE 1 · 표지 ── */
+    .title-slide { gap: 18px; }
+    .title-slide .main-title {
+      font-size: 96px; font-weight: 900; letter-spacing: -4px; line-height: 1;
+    }
+    .title-slide .sub { font-size: 24px; font-weight: 400; color: rgba(255,255,255,0.92); }
+    .title-slide .divider { width: 56px; height: 2px; background: rgba(255,255,255,0.18); border-radius: 2px; }
+    .title-slide .meta { font-size: 14px; color: rgba(255,255,255,0.9); letter-spacing: 0.5px; }
+
+    /* ── SLIDE 2 · 팀소개 ── */
+    .team-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 24px;
+      width: 100%; max-width: 840px; margin-top: 32px;
+    }
+    .team-card {
+      background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.10);
+      border-radius: 20px; padding: 32px 28px; text-align: left;
+    }
+    .team-card .role-badge {
+      display: inline-block; padding: 5px 14px; font-size: 11px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 1.5px; border-radius: 20px;
+      background: rgba(0,122,255,0.15); color: #007AFF; margin-bottom: 18px;
+    }
+    .team-card h3 { font-size: 21px; font-weight: 700; letter-spacing: -0.3px; margin-bottom: 10px; }
+    .team-card p  { font-size: 14px; color: rgba(255,255,255,0.9); line-height: 1.65; }
+    .team-quote {
+      max-width: 680px; text-align: center; margin-top: 28px;
+      font-size: 18px; font-weight: 500; color: rgba(255,255,255,0.9); line-height: 1.65;
+    }
+    .team-quote strong { color: #007AFF; font-weight: 700; }
+
+    /* ── SLIDE 3 · 문제정의 ── */
+    .stat-row {
+      display: flex; width: 100%; max-width: 880px; margin-top: 28px;
+      border: 1px solid rgba(255,255,255,0.07); border-radius: 16px; overflow: hidden;
+    }
+    .stat-item {
+      flex: 1; text-align: center; padding: 24px 16px;
+      border-right: 1px solid rgba(255,255,255,0.07);
+    }
+    .stat-item:last-child { border-right: none; }
+    .stat-num   { display: block; font-size: 42px; font-weight: 900; letter-spacing: -2px; color: #007AFF; }
+    .stat-label { display: block; font-size: 12px; color: rgba(255,255,255,0.9); line-height: 1.5; margin-top: 6px; }
+
+    .barrier-row { display: flex; gap: 16px; width: 100%; max-width: 880px; margin-top: 20px; }
+    .barrier-card {
+      flex: 1; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 14px; padding: 24px 20px; text-align: center;
+    }
+    .barrier-num {
+      width: 34px; height: 34px; border-radius: 50%; background: rgba(0,122,255,0.14);
+      color: #007AFF; font-size: 14px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center; margin: 0 auto 14px;
+    }
+    .barrier-card h4 { font-size: 15px; font-weight: 700; margin-bottom: 6px; }
+    .barrier-card p  { font-size: 12px; color: rgba(255,255,255,0.9); line-height: 1.5; }
+
+    /* ── SLIDE 4 · 소개 ── */
+    .flow-row {
+      display: flex; gap: 10px; align-items: center;
+      width: 100%; max-width: 1080px; margin-top: 32px;
+    }
+    .flow-step {
+      flex: 1; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.10);
+      border-radius: 18px; padding: 24px 16px; text-align: center; position: relative;
+    }
+    .flow-step .step-glow {
+      position: absolute; top: -1px; left: 50%; transform: translateX(-50%);
+      width: 60%; height: 2px;
+      background: linear-gradient(90deg, transparent, #007AFF, transparent); border-radius: 2px;
+    }
+    .flow-step .step-icon  { width: 36px; height: 36px; margin: 0 auto 10px; display: flex; align-items: center; justify-content: center; }
+    .flow-step .step-num   { font-size: 11px; font-weight: 700; color: #007AFF; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px; }
+    .flow-step .step-title { font-size: 17px; font-weight: 700; margin-bottom: 6px; }
+    .flow-step .step-desc  { font-size: 12px; color: rgba(255,255,255,0.9); line-height: 1.6; word-break: keep-all; }
+    .flow-arrow { font-size: 16px; color: rgba(255,255,255,0.18); flex-shrink: 0; }
+
+    .catch-box {
+      max-width: 800px; text-align: center; margin-top: 24px;
+      padding: 16px 28px; border-radius: 12px;
+      border: 1px solid rgba(0,122,255,0.22); background: rgba(0,122,255,0.06);
+    }
+    .catch-box p { font-size: 16px; font-weight: 500; color: rgba(255,255,255,0.9); line-height: 1.65; }
+    .catch-box p strong { color: #007AFF; }
+
+    /* ── SLIDE 5 · 시연 ── */
+    .demo-v2 {
+      display: grid; grid-template-columns: auto 200px; gap: 24px;
+      width: fit-content; margin: 18px auto 0; align-items: start;
+    }
+    .demo-card {
+      background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 16px; padding: 18px 16px; text-align: center;
+    }
+    .demo-card-label {
+      display: block; font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 1.8px; color: #007AFF; margin-bottom: 10px;
+    }
+    .demo-card-hint { font-size: 12px; color: rgba(255,255,255,0.9); margin-top: 10px; line-height: 1.45; }
+    .url-box {
+      background: rgba(0,0,0,0.25); border: 1px dashed rgba(0,122,255,0.4);
+      border-radius: 8px; padding: 14px 10px; font-size: 12px; color: rgba(255,255,255,0.6);
+      font-family: monospace; line-height: 1.5;
+    }
+    .demo-qr {
+      width: 150px; max-width: 100%; display: block; margin: 0 auto 10px;
+      background: #fff; padding: 8px; border-radius: 8px;
+    }
+    .demo-open-btn {
+      display: flex; align-items: center; justify-content: center;
+      width: 32px; height: 32px; margin: 0 auto; font-size: 15px; font-weight: 700;
+      color: #fff; text-decoration: none; background: #007AFF; border-radius: 50%;
+      transition: all 0.2s;
+    }
+    .demo-open-btn:hover { background: #0a6fe0; transform: translateY(-1px); }
+    .demo-card-url {
+      margin-top: 9px; font-family: monospace; font-size: 9.5px; line-height: 1.4;
+      color: rgba(255,255,255,0.5); word-break: break-all;
+    }
+    .lang-pill-row { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+    .lang-pill {
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      padding: 9px 10px; border-radius: 10px; font-size: 13px; font-weight: 600;
+      background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); color: #fff;
+    }
+    .lang-pill.on { background: rgba(0,122,255,0.16); border-color: rgba(0,122,255,0.4); color: #007AFF; }
+    .persona-compact {
+      background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.10);
+      border-radius: 14px; padding: 14px 16px; margin-bottom: 14px;
+    }
+    .persona-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; color: #007AFF; margin-bottom: 8px; display: block; }
+    .persona-name  { font-size: 17px; font-weight: 700; margin-bottom: 10px; }
+    .persona-tag {
+      display: inline-block; padding: 4px 10px; font-size: 11px; font-weight: 600;
+      border-radius: 20px; background: rgba(255,255,255,0.12); color: rgba(255,255,255,0.9);
+      margin: 3px 3px 0 0;
+    }
+    .demo-steps { display: flex; flex-direction: column; gap: 10px; }
+    .demo-step  { display: flex; align-items: flex-start; gap: 12px; }
+    .demo-step-num {
+      width: 26px; height: 26px; border-radius: 50%; background: rgba(0,122,255,0.15);
+      color: #007AFF; font-size: 12px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .demo-step-text { font-size: 15px; color: rgba(255,255,255,0.9); line-height: 1.5; padding-top: 3px; }
+    .demo-step-text strong { color: #fff; }
+
+    /* ── SLIDE 6 · 국민혜택 ── */
+    .compare-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 32px;
+      width: 100%; max-width: 920px;
+    }
+    .compare-col { padding: 30px 28px; border-radius: 18px; }
+    .compare-col.col-before { background: #f5f5f7; border: 1px solid #e8e8ea; }
+    .compare-col.col-after  { background: #111; color: #fff; border: 1px solid #2a2a2a; }
+    .compare-col h3 { font-size: 22px; font-weight: 800; margin-bottom: 4px; letter-spacing: -0.3px; }
+    .compare-col.col-before h3 { color: #1a1a1a; }
+    .compare-col.col-after  h3 { color: #007AFF; }
+    .compare-col .col-sub  { font-size: 12px; color: #444; margin-bottom: 18px; }
+    .compare-col.col-after .col-sub { color: rgba(255,255,255,0.9); }
+    .compare-col ul { list-style: none; display: flex; flex-direction: column; gap: 11px; }
+    .compare-col ul li { font-size: 15px; line-height: 1.5; padding-left: 18px; position: relative; }
+    .compare-col.col-before ul li { color: #1a1a1a; }
+    .compare-col.col-after  ul li { color: rgba(255,255,255,0.9); }
+    .compare-col ul li::before {
+      content: ''; position: absolute; left: 0; top: 7px;
+      width: 7px; height: 7px; border-radius: 50%;
+    }
+    .compare-col.col-before ul li::before { background: #ccc; }
+    .compare-col.col-after  ul li::before { background: #007AFF; }
+    .impact-line {
+      width: 100%; max-width: 920px; margin-top: 20px; text-align: center;
+      padding: 16px 24px; border-radius: 14px; background: #eef4ff; border: 2px solid #c8dcff;
+    }
+    .impact-line p { font-size: 17px; font-weight: 700; color: #16489c; line-height: 1.5; }
+    .impact-line p strong { color: #007AFF; }
+
+    /* ── SLIDE 7 · 발전방안 ── */
+    .roadmap-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 24px;
+      width: 100%; max-width: 920px; margin-top: 28px;
+    }
+    .roadmap-col {
+      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 18px; padding: 28px 24px;
+    }
+    .roadmap-col .col-head { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; }
+    .roadmap-col .col-badge {
+      padding: 4px 14px; font-size: 11px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 1.5px; border-radius: 20px;
+    }
+    .roadmap-col.col-now    .col-badge { background: rgba(0,122,255,0.15); color: #007AFF; }
+    .roadmap-col.col-future .col-badge { background: rgba(175,82,222,0.15); color: #AF52DE; }
+    .roadmap-col .col-timeline { font-size: 12px; color: rgba(255,255,255,0.9); }
+    .roadmap-col h3 { font-size: 20px; font-weight: 700; margin-bottom: 16px; letter-spacing: -0.3px; }
+    .roadmap-col ul { list-style: none; display: flex; flex-direction: column; gap: 11px; }
+    .roadmap-col ul li { display: flex; align-items: flex-start; gap: 10px; font-size: 14px; color: rgba(255,255,255,0.9); line-height: 1.5; }
+    .roadmap-col ul li::before { content: ''; width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; margin-top: 7px; }
+    .roadmap-col.col-now    ul li::before { background: #007AFF; }
+    .roadmap-col.col-future ul li::before { background: #AF52DE; }
+    .roadmap-col ul li strong { color: #fff; }
+
+    .closing-block { max-width: 800px; text-align: center; margin-top: 28px; }
+    .closing-catch {
+      font-size: 24px; font-weight: 700; letter-spacing: -0.5px; line-height: 1.5;
+      background: linear-gradient(135deg, #007AFF, #5856D6);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .closing-sub { font-size: 14px; color: rgba(255,255,255,0.9); margin-top: 10px; }
+
+    /* ── PRINT ── */
+    @media print {
+      .progress-bar, .slide-counter, .hint, .fullscreen-btn { display: none !important; }
+      .deck { width: 100%; height: auto; }
+      .slide {
+        position: relative; opacity: 1 !important; visibility: visible !important;
+        page-break-after: always; width: 100%; height: 100vh;
+        print-color-adjust: exact; -webkit-print-color-adjust: exact;
+      }
+      .slide .a { opacity: 1 !important; transform: none !important; }
+      .slide-dark     { background: #000 !important; color: #fff !important; }
+      .slide-gradient { background: linear-gradient(135deg,#1a1a2e,#16213e,#0f3460) !important; }
+      .slide-light    { background: #fff !important; color: #1a1a1a !important; }
+      @page { size: landscape; margin: 0; }
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      .slide { padding: 40px 36px; }
+      .title-slide .main-title { font-size: 60px; }
+      .team-grid, .roadmap-grid, .compare-grid { grid-template-columns: 1fr; }
+      .demo-v2 { grid-template-columns: 1fr; }
+      .stat-row, .barrier-row, .flow-row { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="progress-bar" id="progress"></div>
+  <div class="slide-counter" id="counter"></div>
+  <div class="hint" id="hint">
+    <kbd>←</kbd><kbd>→</kbd> 이동 &nbsp;
+    <kbd>F</kbd> 전체화면 &nbsp;
+    <kbd>S</kbd> 노트
+  </div>
+  <button class="fullscreen-btn" id="fs-btn" onclick="toggleFullscreen()">&#x26F6;</button>
+
+  <div class="deck" id="deck">
+
+    <!-- ═══════════ SLIDE 1 · 표지 ═══════════ -->
+    <div class="slide slide-dark active title-slide"
+         data-notes="안녕하세요, 고용노동부 팀 드리미입니다. 오늘 미션은 '지역 소멸 위기에서 국민의 정착과 생활을 도우라'입니다. 저희 답은 다우리 — 어디서 살지, 무엇을 받을지 AI가 함께 판단하는 서비스입니다. [약 25초]">
+      <span class="a overline">2026 AI챔피언 해커톤 · 결선</span>
+      <h1 class="a main-title text-gradient">다우리</h1>
+      <div class="a divider"></div>
+      <p class="a sub">지역 소멸 위기, 국민의 정착을 돕다</p>
+      <p class="a meta">팀 드리미 &nbsp;·&nbsp; 고용노동부</p>
+    </div>
+
+    <!-- ═══════════ SLIDE 2 · 팀소개 ═══════════ -->
+    <div class="slide slide-gradient"
+         data-notes="팀 드리미는 고용노동부 소속 2인 팀입니다. 강기륜이 백엔드와 프론트를, 제가 기획과 데이터를 맡았습니다. 한 줄로: 흩어진 정착 지원을 찾아내, AI가 맞춤 언어로 연결합니다. [약 20초]">
+      <p class="a overline" style="color: rgba(255,255,255,0.9); letter-spacing: 4px;">Team</p>
+      <h2 class="a text-center" style="font-size: 52px; font-weight: 900; letter-spacing: -1.5px; margin-bottom: 4px;">팀 드리미</h2>
+      <p class="a text-center text-muted" style="font-size: 16px;">소속: 고용노동부 &nbsp;·&nbsp; 구성: 2인</p>
+      <div class="a team-grid">
+        <div class="team-card">
+          <span class="role-badge">백엔드 · 프론트</span>
+          <h3>강기륜 – AI Pipeline &amp; Build</h3>
+          <p>FastAPI 서버, Gemini OCR·다국어 파이프라인,<br>정착 corpus RAG 엔진, 단일 HTML 프론트엔드</p>
+        </div>
+        <div class="team-card">
+          <span class="role-badge">기획 · 데이터</span>
+          <h3>이태규 – Problem &amp; Data</h3>
+          <p>문제 정의, 지역 정착 corpus 설계·수집,<br>다국어·접근성 검증, 발표</p>
+        </div>
+      </div>
+      <p class="a team-quote">"흩어진 정착 지원을 찾아내, <strong>AI가 맞춤 언어로 연결한다</strong>"</p>
+    </div>
+
+    <!-- ═══════════ SLIDE 3 · 문제 정의 ① ═══════════ -->
+    <div class="slide slide-dark"
+         data-notes="지역소멸을 막으려는 정착 지원은 이미 많습니다. 인구감소지역만 89곳, 부처·지자체별로 귀농·청년마을·전입정착·다문화 지원이 쏟아집니다. 그런데 정작 그 지역으로 옮겨가 정착하려는 국민 — 청년·귀농귀촌인·신혼부부, 그리고 빠르게 늘고 있는 외국인·다문화 가정 — 은 자기가 받을 지원을 혼자 찾지 못합니다. 정착 인구가 그만큼 다양해졌다는 신호로, 외국인주민도 258만 명, 총인구의 5.0%로 역대 최다고, 다문화 가구 43.9만 중 45%가 지방에 살며, 결혼이민자만 18.8만 명으로 5년새 2.1만 명, 12.8% 늘었습니다. 한국노동연구원도 농어촌 인구감소의 대안으로 이민자 유입을 꼽습니다. 문제는 세 겹의 벽입니다. 지원이 있는지 모르고, 행정용어 한국어 공고는 이해 못 하고, 어디서 신청하는지도 모릅니다. 핵심 인사이트는 이겁니다 — 한국어 안내문은 못 읽어도, 자기 나라 말로 물어보는 건 한다. [약 65초]">
+      <h2 class="a text-center" style="font-size: 46px; font-weight: 900; letter-spacing: -1.5px;">문제 정의</h2>
+      <p class="a text-center" style="font-size: 15px; color: rgba(255,255,255,0.85); margin-top: 6px; font-weight: 500;">지원은 많지만, 정작 지역을 채우는 사람들이 못 받는다</p>
+      <div class="a stat-row" style="margin-top: 20px;">
+        <div class="stat-item">
+          <span class="stat-num">89곳</span>
+          <span class="stat-label">인구감소지역 지정<br>(+관심지역 18곳)</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-num">45%</span>
+          <span class="stat-label">다문화 가구(43.9만)<br>지방 거주</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-num">18.8만</span>
+          <span class="stat-label">결혼이민자<br>5년새 +2.1만 (+12.8%)</span>
+        </div>
+        <div class="stat-item" style="background: rgba(0,122,255,0.07);">
+          <span class="stat-num">대안</span>
+          <span class="stat-label">인구감소 대응책으로<br>다문화가구 유입 부상</span>
+        </div>
+      </div>
+      <div class="a" style="width:100%; max-width:880px; text-align:right; margin-top:5px;">
+        <span style="font-size:10px; color:rgba(255,255,255,0.4);">출처: 행정안전부(인구감소지역 지정), 통계청 인구주택총조사(2024), 법무부 출입국통계(2025), 한국노동연구원(2025), 농어촌특별법 제18조의2·한국농촌경제연구원(농어촌 다문화가족 정착)</span>
+      </div>
+      <div class="a barrier-row">
+        <div class="barrier-card">
+          <div class="barrier-num">1</div>
+          <h4>존재의 벽</h4>
+          <p>부처·지자체별로 흩어진 지원,<br>있는지조차 모름</p>
+        </div>
+        <div class="barrier-card">
+          <div class="barrier-num">2</div>
+          <h4>이해의 벽</h4>
+          <p>행정용어 + 한국어 공고문은<br>이해하기 매우 어려움</p>
+        </div>
+        <div class="barrier-card">
+          <div class="barrier-num">3</div>
+          <h4>행동의 벽</h4>
+          <p>자격이 돼도 어디서·어떻게<br>신청하는지 막막함</p>
+        </div>
+      </div>
+      <div class="a" style="display: flex; align-items: center; gap: 10px; max-width: 880px; margin-top: 14px; padding: 12px 20px; border-radius: 10px; background: rgba(0,122,255,0.08); border: 1px solid rgba(0,122,255,0.2);">
+        <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #007AFF; white-space: nowrap;">인사이트</span>
+        <span style="width: 1px; height: 16px; background: rgba(0,122,255,0.3); flex-shrink:0;"></span>
+        <span style="font-size: 13px; color: rgba(255,255,255,0.9);">한국어 안내문은 못 읽어도, 다국어로 물어보는 건 한다 — AI가 공고를 읽어 쉬운말로 바꾸고 다국어로 답하면, 정착 지원이 사각지대까지 닿는다</span>
+      </div>
+    </div>
+
+    <!-- ═══════════ SLIDE 4 · 다우리 소개 ═══════════ -->
+    <div class="slide slide-dark"
+         data-notes="다우리은 이렇게 작동합니다. 첫째, 내 상황을 위저드로 고르거나 받은 공고문을 사진으로 올립니다. 둘째, Gemini가 쉬운말로 정리하고 자격을 분석하고 필요하면 다국어로 바꿉니다. 셋째, 지역 정착 지원 corpus에서 RAG로 매칭하는데, 금액·기관은 원본만 쓰고 AI가 지어내지 않습니다. 넷째, 큰 글씨와 음성으로 안내하고 전화·길찾기로 연결하며, 결과를 두고 다국어로 되물을 수 있습니다. 핵심은 검색을 넘어 '판단'을 동반한다는 겁니다. [약 55초]">
+      <h2 class="a text-center" style="font-size: 46px; font-weight: 900; letter-spacing: -1.5px;">다우리 소개</h2>
+      <p class="a text-center text-subtle" style="font-size: 19px; margin-top: 4px;">내 상황만 입력하면, 그 지역에서 받을 지원을 찾아준다</p>
+      <div class="a flow-row">
+        <div class="flow-step">
+          <div class="step-glow"></div>
+          <div class="step-icon">
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#007AFF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+          </div>
+          <div class="step-num">Step 01</div>
+          <div class="step-title">상황 입력</div>
+          <div class="step-desc">지역·대상 위저드 선택<br>또는 공고문 사진(OCR)</div>
+        </div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-step">
+          <div class="step-glow"></div>
+          <div class="step-icon">
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#007AFF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg>
+          </div>
+          <div class="step-num">Step 02</div>
+          <div class="step-title">AI 분석</div>
+          <div class="step-desc">Gemini로 쉬운말 요약·자격 분석<br>필요시 다국어로 변환</div>
+        </div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-step">
+          <div class="step-glow"></div>
+          <div class="step-icon">
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#007AFF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          </div>
+          <div class="step-num">Step 03</div>
+          <div class="step-title">지원 매칭</div>
+          <div class="step-desc">정착 지원 corpus RAG 매칭<br>금액·기관은 원본만(환각 차단)</div>
+        </div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-step">
+          <div class="step-glow"></div>
+          <div class="step-icon">
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#007AFF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          </div>
+          <div class="step-num">Step 04</div>
+          <div class="step-title">연결 + 되묻기</div>
+          <div class="step-desc">큰 글씨·음성·전화·길찾기<br>다국어 grounded 챗봇으로 되묻기</div>
+        </div>
+      </div>
+      <div class="a catch-box">
+        <p>검색을 넘어 <strong>'판단'을 동반</strong>한다 — 결과를 두고 <strong>다국어로 되묻는</strong> 정착 도우미</p>
+      </div>
+    </div>
+
+    <!-- ═══════════ SLIDE 5 · 시연 ② ═══════════ -->
+    <div class="slide slide-gradient"
+         data-notes="지금 바로 시연하겠습니다. 페르소나는 베트남에서 온 결혼이민 여성, F-6 비자, 전남 OO군 정착을 검토 중입니다. 지역과 대상을 고르고 클릭 한 번이면, 다문화 정착지원금·한국어교육·자녀돌봄이 카드로 뜹니다. 금액과 신청처는 안내문 원본 그대로입니다. 그리고 챗봇에 베트남어로 '나도 자격 돼요?'라고 물으면, 매칭된 결과를 근거로 베트남어로 답하고, 안내문에 없는 건 '안내문에 없어요'라고 말합니다. 화면 오른쪽 언어 토글로 한국어와 베트남어가 실시간으로 바뀝니다. [약 70초 · DEMO 전환]">
+      <h2 class="a text-center" style="font-size: 46px; font-weight: 900; letter-spacing: -1.5px;">시연</h2>
+      <p class="a text-center text-muted" style="font-size: 17px; margin-top: 4px;">실제로 작동합니다 — 클릭 1번 + 다국어로 되묻기</p>
+      <div class="a demo-v2">
+        <div>
+          <div class="persona-compact">
+            <span class="persona-label">Demo Persona</span>
+            <div class="persona-name">베트남 결혼이민 여성</div>
+            <span class="persona-tag">전남 고흥군</span>
+            <span class="persona-tag">한국어 미숙</span>
+            <span class="persona-tag">자녀 둘</span>
+          </div>
+          <div class="demo-steps">
+            <div class="demo-step"><div class="demo-step-num">1</div><div class="demo-step-text">지역·대상 선택 <strong>(또는 공고문 사진)</strong></div></div>
+            <div class="demo-step"><div class="demo-step-num">2</div><div class="demo-step-text">AI가 자격 <strong>자동 분석</strong></div></div>
+            <div class="demo-step"><div class="demo-step-num">3</div><div class="demo-step-text"><strong>다문화 정착지원금 · 한국어교육 · 자녀돌봄</strong> 카드 표시</div></div>
+            <div class="demo-step"><div class="demo-step-num">4</div><div class="demo-step-text">전화 · 온라인 신청 · <strong>길찾기</strong> 연결</div></div>
+            <div class="demo-step"><div class="demo-step-num">5</div><div class="demo-step-text">챗봇에 <strong>베트남어로 "나도 자격 돼요?"</strong> → corpus 근거 답변</div></div>
+          </div>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:14px;">
+          <div class="demo-card">
+            <span class="demo-card-label">라이브 시연</span>
+            <img class="demo-qr" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAcIAAAHCAQAAAABUY/ToAAAENklEQVR4nO1cbW6jMBCdGZDyk0g9QI9CbrBn2puFo+QAleBnJNCsZmwDqYScurRZ7HmqUALz1Dh5mk8DMqSho0QigDFjoKjFFowZA0UttmDMGChqsQVjxkBRiy0YMwaKWmzBmDl+Q+hRA14GRIChBuhQXsGEeFGjIVhdDrvOFFASq0Bmy4Len8RLc0c9h4gn5queg0qN+MjrTAClkIpkDrN/gYrVD+FFnJEA8Txh8Ff1sdf5dVACpyxm/ek9wyB6acaau/c7cvdHnVPFuN//JGNmrSEEqEbszr1zRtD2qqt63PF/kjGz1FAjac6genmT91PNqiZoPmru/oxyQa6+9tOSMf/DbwjWabKkQm2/eQBYJeBX+z1joKI0tMI1lF8KgEYVtj7n7Y61TjLmT/eHLtIG8s2f6aFTBBOqC0I8i91Sv9mvEgMVFssaZo1RGre8p9Fz+lYSa2bJq5vRey7zQ5kpgfbIh1haidCqVCR4uajWS7tIlCNX9ZzlQ1kqgb7LbNUFqXwGaUxLn1qUA87x3E7eS2loe/mnTQClkBTGfNoPVa7yUsfjw5hI6rE4c8ZWlz0HKrG2b5biTFHJax/GvB9aTI61TjLmb9T2MItGXRBfNZbp+EzhqnzrDz0NKoqJUrMz8x110srX4SSzjpMLaF5jN8TgoF77aVNASSyBMaNgl+K4El59ji/mveNp/KTMJUp6wfKh50Cl9YdGCV5Ldh0OMBdnEtpWXWzLhzJTAiUzwUvCDcOqELz6T+IafYXmTUxD+SmBvslEfFepSFdId56F/Jn5Fib73XmSlGk88jpTQEms8pjsk2jVS8W6lVoHZKCxrL1Jnu12NIZ+9iHXmQJKYpWYU7NvKrpphrsgAc1POB5zb4tlGSqBkpkQ5quaBfl8aKWmVoXULD0j61NnqgTaZy9sc0fozh/AcpAtjMid7Pho+8kZoPzxEddJxvz5+zpOYQO1zle1THvIrt0wdjUYsV8lBiqECUueE5Ki0CRy6TRrWS+WjzsarT+UmRJonz1o/ZxJr1rUVRjBhm6j9YeyVALtVpfBauNi8E1hzBGmr9ZjzFEJ9P1YBvCwZ3HeMNTPAw+BRjXTUI5KoN3u64AloC3zVUHYbT13A461TjLmrz33A7p3ZtCK/iLexz38Qyu0UKbZfR1Pgsp97sckW6mZ+S/WPr7JnfchoE1hE9Eh15kASiGVmg/BcjurD1lj2Aa7usXV6rJMlUC7PbMB/CM/WJ/ewNDyVGuzWqr8ETqcnwByrHWSMX9NQwzDm6hEhNJ8eLm0/dsI8hQZhGZ2SfarxECFMZtwN0cnO4lWvaB+fqU7idz906/+tF8HJXAcjPlkPuShvaCwe5E3ynrrDz0JKiqW8fyew2H1qCH2B3/K5vZZKoGMGQHFDDZhzBgoarEFY8ZAUYstGDMGilpswZgxvOIb+gd/BFcop7q3dgAAAABJRU5ErkJggg==" alt="다우리 접속 QR 코드">
+            <a class="demo-open-btn" href="https://selecting-limiting-attraction-pregnant.trycloudflare.com/" target="_blank" rel="noopener" aria-label="바로 접속">→</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════ SLIDE 6 · 국민 혜택 ★40 ═══════════ -->
+    <div class="slide slide-light"
+         data-notes="이 서비스가 바꾸는 건 검색 편의가 아니라 도달입니다. 기존에는 부처·지자체 사이트를 돌며 흩어진 공고를 직접 찾아야 했고, 언어와 행정용어의 벽이 큰 사람일수록 포기했습니다. 다우리은 내 상황만 넣으면 받을 지원을 즉시 보여주고, 쉬운말과 다국어로 안내하며, 챗봇으로 자격을 되묻고, 전화·길찾기로 신청까지 연결합니다. 결과적으로 인구감소지역 89곳에서 가장 못 받던 집단의 정착을 돕는 것 — 그게 지역소멸 대응에 직접 기여하는 길입니다. [약 50초]">
+      <h2 class="a text-center" style="font-size: 50px; font-weight: 900; letter-spacing: -1.5px; color: #1a1a1a;">국민 혜택</h2>
+      <p class="a text-center" style="font-size: 19px; color: #222; margin-top: 4px;">흩어진 정착 지원을, 사각지대까지 다국어로 닿게</p>
+      <div class="a compare-grid" style="margin-top: 22px;">
+        <div class="compare-col col-before">
+          <h3>Before</h3>
+          <div class="col-sub">기존 방식</div>
+          <ul>
+            <li>부처·지자체 사이트 직접 검색</li>
+            <li>행정용어 + 한국어 공고 이해 어려움</li>
+            <li>신청처·전화 직접 찾아야</li>
+            <li>언어·행정용어 벽에 막히면 포기</li>
+          </ul>
+        </div>
+        <div class="compare-col col-after">
+          <h3>After</h3>
+          <div class="col-sub">다우리 사용 시</div>
+          <ul>
+            <li>내 상황 → 받을 지원 즉시</li>
+            <li>쉬운말 + 다국어로 자동 안내</li>
+            <li>다국어 챗봇으로 자격 되묻기</li>
+            <li>전화·길찾기로 신청까지 연결</li>
+          </ul>
+        </div>
+      </div>
+      <div class="a impact-line">
+        <p>인구감소지역 <strong>89곳</strong>에서 가장 못 받던 집단의 정착을 돕는다 = <strong>지역소멸 대응</strong>에 직접 기여</p>
+      </div>
+    </div>
+
+    <!-- ═══════════ SLIDE 7 · 발전방안 ③ + 클로징 ═══════════ -->
+    <div class="slide slide-dark"
+         data-notes="다음 단계는 둘입니다. 즉시 보완은 1~2주 안에 가능합니다 — 다양한 사용자 페르소나로 UI/UX 경험을 조사해 그 피드백을 바탕으로 꾸준히 개선합니다. 그리고 이 모든 개선은 저희가 직접 구성한 AI 에이전트 팀이 품질 평가·안정성 점검·감사를 반복 수행하는 리뷰 체계 위에서 돌아갑니다 — 사람이 놓치는 부분까지 에이전트가 교차 검증합니다. 더해서 corpus의 금액·기한을 최신화하고 출처를 검증하고, 이미 지원하는 다국어의 번역 정확도를 높입니다. 그다음은 대상 유저 풀을 넓히는 것입니다. 동일한 파이프라인에 corpus만 바꿔 끼우면 — 청년 지역정착 정책, 외국인근로자 고용·체류 정책, 귀농·귀촌 영농정착, 신혼·다자녀 생활복지까지 — 대상과 언어 모듈만 더해 그대로 확장됩니다. 다우리은 하나의 약속으로 움직입니다 — 어디서 살지, 무엇을 받을지, AI가 함께 판단합니다. 감사합니다. [약 45초]">
+      <h2 class="a text-center" style="font-size: 50px; font-weight: 900; letter-spacing: -1.5px;">발전방안</h2>
+      <div class="a roadmap-grid">
+        <div class="roadmap-col col-now">
+          <div class="col-head">
+            <span class="col-badge">즉시 보완</span>
+            <span class="col-timeline">1~2주</span>
+          </div>
+          <ul>
+            <li>사용자 <strong>UI/UX 피드백 기반 개선</strong> (페르소나 검증 → 반복)</li>
+            <li>AI 에이전트 팀 <strong>리뷰 체계</strong> (품질 평가·안정성·감사)</li>
+            <li>Corpus <strong>최신화·출처 검증</strong> (금액·기한 정확도)</li>
+            <li>다국어 <strong>번역 정확도 향상</strong> (용어·맥락 일관성)</li>
+          </ul>
+        </div>
+        <div class="roadmap-col col-future">
+          <div class="col-head">
+            <span class="col-badge">대상 확대</span>
+          </div>
+          <ul>
+            <li><strong>청년 지역정착</strong> 정책 (청년마을·전입 청년)</li>
+            <li><strong>외국인근로자</strong> 정책 (E-9·계절근로 고용·체류·생활)</li>
+            <li><strong>귀농·귀촌</strong> 정책 (영농정착·빈집 주거)</li>
+            <li><strong>신혼·다자녀</strong> 생활복지 (출산·돌봄·주거 지원)</li>
+          </ul>
+          <p style="margin-top: 16px; font-size: 12px; color: rgba(255,255,255,0.6); line-height: 1.55;">↳ 동일 파이프라인 위에 <strong style="color:#AF52DE;">데이터만 더하면</strong> 새 대상으로 확장됩니다</p>
+        </div>
+      </div>
+      <div class="a closing-block">
+        <div class="closing-catch">"어디서 살지, 무엇을 받을지 — AI가 함께 판단합니다"</div>
+        <div class="closing-sub">팀 드리미 · 고용노동부 · 2026 AI챔피언 해커톤 &nbsp;|&nbsp; 감사합니다</div>
+      </div>
+    </div>
+
+  </div><!-- /deck -->
+
+  <script>
+    (function () {
+      'use strict';
+      var deck       = document.getElementById('deck');
+      var slides     = Array.from(deck.querySelectorAll('.slide'));
+      var total      = slides.length;
+      var current    = 0;
+      var progressEl = document.getElementById('progress');
+      var counterEl  = document.getElementById('counter');
+      var hintEl     = document.getElementById('hint');
+      var fsBtnEl    = document.getElementById('fs-btn');
+      var notesWin   = null;
+
+      function openNotes() {
+        notesWin = window.open('', 'SpeakerNotes', 'width=520,height=420,top=80,left=80');
+        notesWin.document.write('<!DOCTYPE html><html><head><style>'
+          + '* { margin:0; padding:0; box-sizing:border-box; }'
+          + 'body { font-family:-apple-system,BlinkMacSystemFont,sans-serif; background:#1a1a1a; color:#e0e0e0; padding:24px; }'
+          + '.sn { font-size:12px; color:#777; margin-bottom:12px; font-family:monospace; }'
+          + '.lbl { font-size:11px; letter-spacing:2px; text-transform:uppercase; color:#555; margin-bottom:8px; }'
+          + '.nt { font-size:16px; line-height:1.8; color:#ccc; }'
+          + '</style></head><body>'
+          + '<div class="sn" id="sn"></div><div class="lbl">Speaker Notes</div><div class="nt" id="nt"></div>'
+          + '</body></html>');
+        notesWin.document.close();
+      }
+      function updateNotes() {
+        if (!notesWin || notesWin.closed) return;
+        try {
+          notesWin.document.getElementById('nt').textContent = slides[current].dataset.notes || '(No notes)';
+          notesWin.document.getElementById('sn').textContent = 'Slide ' + (current + 1) + ' / ' + total;
+        } catch(e) {}
+      }
+      function toggleNotes() {
+        if (notesWin && !notesWin.closed) { notesWin.close(); notesWin = null; return; }
+        openNotes(); updateNotes();
+      }
+      function readHash() {
+        var h = window.location.hash;
+        if (h && /^#\d+$/.test(h)) {
+          var idx = parseInt(h.slice(1), 10) - 1;
+          if (idx >= 0 && idx < total) {
+            slides[current].classList.remove('active');
+            current = idx;
+            slides[current].classList.add('active');
+          }
+        }
+      }
+      function updateUI() {
+        progressEl.style.width = ((current + 1) / total * 100) + '%';
+        counterEl.textContent  = (current + 1) + ' / ' + total;
+        var light = slides[current].classList.contains('slide-light');
+        counterEl.classList.toggle('on-light', light);
+        hintEl.classList.toggle('on-light', light);
+        fsBtnEl.classList.toggle('on-light', light);
+        history.replaceState(null, '', '#' + (current + 1));
+        updateNotes();
+      }
+      function goTo(idx) {
+        if (idx < 0 || idx >= total || idx === current) return;
+        slides[current].classList.remove('active');
+        current = idx;
+        slides[current].classList.add('active');
+        updateUI();
+      }
+      document.addEventListener('keydown', function (e) {
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+        switch (e.key) {
+          case 'ArrowRight': case 'ArrowDown': e.preventDefault(); goTo(current + 1); break;
+          case 'ArrowLeft': case 'ArrowUp': e.preventDefault(); goTo(current - 1); break;
+          case ' ': e.preventDefault(); e.shiftKey ? goTo(current - 1) : goTo(current + 1); break;
+          case 'Home': e.preventDefault(); goTo(0); break;
+          case 'End':  e.preventDefault(); goTo(total - 1); break;
+          case 'f': case 'F': e.preventDefault(); toggleFullscreen(); break;
+          case 's': case 'S': e.preventDefault(); toggleNotes(); break;
+        }
+      });
+      deck.addEventListener('click', function (e) {
+        if (e.target.closest('a, button, code, pre')) return;
+        var x = e.clientX - deck.getBoundingClientRect().left;
+        x > deck.offsetWidth / 2 ? goTo(current + 1) : goTo(current - 1);
+      });
+      var tx = 0, ty = 0, tt = 0;
+      deck.addEventListener('touchstart', function (e) {
+        tx = e.touches[0].clientX; ty = e.touches[0].clientY; tt = Date.now();
+      }, { passive: true });
+      deck.addEventListener('touchend', function (e) {
+        var dx = e.changedTouches[0].clientX - tx;
+        var dy = e.changedTouches[0].clientY - ty;
+        if (Date.now() - tt > 500 || Math.abs(dx) < 50 || Math.abs(dy) > Math.abs(dx)) return;
+        dx < 0 ? goTo(current + 1) : goTo(current - 1);
+      }, { passive: true });
+      window.toggleFullscreen = function () {
+        if (!document.fullscreenElement) { document.documentElement.requestFullscreen().catch(function(){}); }
+        else { document.exitFullscreen().catch(function(){}); }
+      };
+      window.toggleNotes = toggleNotes;
+      window.addEventListener('hashchange', function () { readHash(); updateUI(); });
+      readHash();
+      updateUI();
+    }());
+  </script>
+</body>
+</html>
