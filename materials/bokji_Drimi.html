@@ -1,0 +1,785 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>드리미 — 2026 AI챔피언 해커톤</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      width: 100%; height: 100%; overflow: hidden; background: #000;
+      font-family: 'Pretendard Variable', 'Pretendard', -apple-system, BlinkMacSystemFont,
+        system-ui, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── PROGRESS BAR ── */
+    .progress-bar {
+      position: fixed; top: 0; left: 0; height: 3px; background: #007AFF;
+      transition: width 0.4s cubic-bezier(0.25,0.1,0.25,1); z-index: 1000;
+      border-radius: 0 2px 2px 0; box-shadow: 0 0 8px rgba(0,122,255,0.4);
+    }
+
+    /* ── COUNTER ── */
+    .slide-counter {
+      position: fixed; bottom: 24px; right: 32px; font-size: 13px; font-weight: 500;
+      color: rgba(255,255,255,0.5); z-index: 100; font-variant-numeric: tabular-nums;
+      letter-spacing: 0.5px; transition: color 0.4s;
+    }
+    .slide-counter.on-light { color: rgba(0,0,0,0.35); }
+
+    /* ── HINT ── */
+    .hint {
+      position: fixed; bottom: 24px; left: 32px; display: flex; gap: 8px;
+      align-items: center; z-index: 100; font-size: 12px; color: rgba(255,255,255,0.4);
+      transition: color 0.4s;
+    }
+    .hint.on-light { color: rgba(0,0,0,0.3); }
+    .hint kbd {
+      display: inline-flex; align-items: center; justify-content: center;
+      min-width: 24px; height: 24px; padding: 0 6px; font-size: 11px; font-weight: 500;
+      color: rgba(255,255,255,0.5); background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2); border-radius: 6px;
+    }
+    .hint.on-light kbd { color: rgba(0,0,0,0.4); background: rgba(0,0,0,0.06); border-color: rgba(0,0,0,0.15); }
+
+    /* ── FULLSCREEN BTN ── */
+    .fullscreen-btn {
+      position: fixed; top: 20px; right: 24px; width: 40px; height: 40px;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 10px; color: rgba(255,255,255,0.6); font-size: 18px; cursor: pointer;
+      z-index: 100; transition: all 0.3s; backdrop-filter: blur(8px);
+    }
+    .fullscreen-btn:hover { background: rgba(255,255,255,0.18); color: rgba(255,255,255,0.85); }
+    .fullscreen-btn.on-light { background: rgba(0,0,0,0.06); border-color: rgba(0,0,0,0.12); color: rgba(0,0,0,0.45); }
+
+    /* ── DECK & SLIDES ── */
+    .deck { width: calc(100vw / 1.5); height: calc(100vh / 1.5); position: relative; transform: scale(1.5); transform-origin: top left; }
+    .slide {
+      position: absolute; inset: 0; display: flex; flex-direction: column;
+      justify-content: center; align-items: center; padding: 56px 96px;
+      opacity: 0; visibility: hidden; overflow-y: auto;
+      transition: opacity 0.6s cubic-bezier(0.25,0.1,0.25,1), visibility 0.6s;
+    }
+    .slide.active { opacity: 1; visibility: visible; }
+    .slide-dark     { background: #000; color: #fff; }
+    .slide-gradient { background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460); color: #fff; }
+    .slide-light    { background: #fff; color: #1a1a1a; }
+
+    /* ── STAGGER ANIMATIONS ── */
+    .slide .a {
+      opacity: 0; transform: translateY(28px);
+      transition: opacity 0.6s cubic-bezier(0.25,0.1,0.25,1),
+                  transform 0.6s cubic-bezier(0.25,0.1,0.25,1);
+    }
+    .slide.active .a { opacity: 1; transform: translateY(0); }
+    .slide.active .a:nth-child(1)  { transition-delay: 0.10s; }
+    .slide.active .a:nth-child(2)  { transition-delay: 0.22s; }
+    .slide.active .a:nth-child(3)  { transition-delay: 0.34s; }
+    .slide.active .a:nth-child(4)  { transition-delay: 0.46s; }
+    .slide.active .a:nth-child(5)  { transition-delay: 0.58s; }
+    .slide.active .a:nth-child(6)  { transition-delay: 0.70s; }
+    .slide.active .a:nth-child(7)  { transition-delay: 0.82s; }
+    .slide.active .a:nth-child(8)  { transition-delay: 0.94s; }
+
+    /* ── TYPOGRAPHY ── */
+    .text-gradient {
+      background: linear-gradient(135deg, #007AFF, #5856D6, #AF52DE);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .text-center  { text-align: center; }
+    .text-muted   { opacity: 0.9; }
+    .text-subtle  { opacity: 0.9; }
+    .accent       { color: #007AFF; }
+    .overline {
+      font-size: 14px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 5px; color: #007AFF;
+    }
+
+    /* ── SLIDE 1 · 표지 ── */
+    .title-slide { gap: 18px; }
+    .title-slide .main-title {
+      font-size: 106px; font-weight: 900; letter-spacing: -4px; line-height: 1;
+    }
+    .title-slide .sub { font-size: 24px; font-weight: 400; color: rgba(255,255,255,0.92); }
+    .title-slide .divider { width: 56px; height: 2px; background: rgba(255,255,255,0.18); border-radius: 2px; }
+    .title-slide .meta { font-size: 14px; color: rgba(255,255,255,0.9); letter-spacing: 0.5px; }
+
+    /* ── SLIDE 2 · 팀소개 ── */
+    .team-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 24px;
+      width: 100%; max-width: 840px; margin-top: 32px;
+    }
+    .team-card {
+      background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.10);
+      border-radius: 20px; padding: 32px 28px; text-align: left;
+    }
+    .team-card .role-badge {
+      display: inline-block; padding: 5px 14px; font-size: 11px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 1.5px; border-radius: 20px;
+      background: rgba(0,122,255,0.15); color: #007AFF; margin-bottom: 18px;
+    }
+    .team-card h3 { font-size: 21px; font-weight: 700; letter-spacing: -0.3px; margin-bottom: 10px; }
+    .team-card p  { font-size: 14px; color: rgba(255,255,255,0.9); line-height: 1.65; }
+    .team-quote {
+      max-width: 680px; text-align: center; margin-top: 28px;
+      font-size: 18px; font-weight: 500; color: rgba(255,255,255,0.9); line-height: 1.65;
+    }
+    .team-quote strong { color: #007AFF; font-weight: 700; }
+
+    /* ── SLIDE 3 · 문제정의 ── */
+    .stat-row {
+      display: flex; width: 100%; max-width: 880px; margin-top: 28px;
+      border: 1px solid rgba(255,255,255,0.07); border-radius: 16px; overflow: hidden;
+    }
+    .stat-item {
+      flex: 1; text-align: center; padding: 24px 16px;
+      border-right: 1px solid rgba(255,255,255,0.07);
+    }
+    .stat-item:last-child { border-right: none; }
+    .stat-num   { display: block; font-size: 46px; font-weight: 900; letter-spacing: -2px; color: #007AFF; }
+    .stat-label { display: block; font-size: 12px; color: rgba(255,255,255,0.9); line-height: 1.5; margin-top: 6px; }
+
+    .barrier-row { display: flex; gap: 16px; width: 100%; max-width: 880px; margin-top: 20px; }
+    .barrier-card {
+      flex: 1; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 14px; padding: 24px 20px; text-align: center;
+    }
+    .barrier-num {
+      width: 34px; height: 34px; border-radius: 50%; background: rgba(0,122,255,0.14);
+      color: #007AFF; font-size: 14px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center; margin: 0 auto 14px;
+    }
+    .barrier-card h4 { font-size: 15px; font-weight: 700; margin-bottom: 6px; }
+    .barrier-card p  { font-size: 12px; color: rgba(255,255,255,0.9); line-height: 1.5; }
+    .problem-msg {
+      font-size: 26px; font-weight: 700; color: #007AFF; letter-spacing: -0.5px;
+      margin-top: 20px; text-align: center;
+    }
+
+    /* ── SLIDE 4 · 드리미 소개 ── */
+    .flow-row {
+      display: flex; gap: 10px; align-items: center;
+      width: 100%; max-width: 1080px; margin-top: 32px;
+    }
+    .flow-step {
+      flex: 1; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.10);
+      border-radius: 18px; padding: 24px 16px; text-align: center; position: relative;
+    }
+    .flow-step .step-glow {
+      position: absolute; top: -1px; left: 50%; transform: translateX(-50%);
+      width: 60%; height: 2px;
+      background: linear-gradient(90deg, transparent, #007AFF, transparent); border-radius: 2px;
+    }
+    .flow-step .step-icon  { width: 36px; height: 36px; margin: 0 auto 10px; display: flex; align-items: center; justify-content: center; }
+    .flow-step .step-num   { font-size: 11px; font-weight: 700; color: #007AFF; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px; }
+    .flow-step .step-title { font-size: 17px; font-weight: 700; margin-bottom: 6px; }
+    .flow-step .step-desc  { font-size: 12px; color: rgba(255,255,255,0.9); line-height: 1.6; word-break: keep-all; }
+    .flow-arrow { font-size: 16px; color: rgba(255,255,255,0.18); flex-shrink: 0; }
+
+    .catch-box {
+      max-width: 760px; text-align: center; margin-top: 24px;
+      padding: 16px 28px; border-radius: 12px;
+      border: 1px solid rgba(0,122,255,0.22); background: rgba(0,122,255,0.06);
+    }
+    .catch-box p { font-size: 16px; font-weight: 500; color: rgba(255,255,255,0.9); line-height: 1.65; }
+    .catch-box p strong { color: #007AFF; }
+
+    /* ── SLIDE 5 · 시연 ── */
+    .demo-v2 {
+      display: grid; grid-template-columns: auto 172px; gap: 20px;
+      width: fit-content; margin: 14px auto 0; align-items: start;
+    }
+    .demo-card {
+      background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 16px; padding: 14px 14px 16px; text-align: center;
+    }
+    .demo-card-label {
+      display: block; font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 1.8px; color: #007AFF; margin-bottom: 10px;
+    }
+    .demo-card-hint { font-size: 12px; color: rgba(255,255,255,0.9); margin-top: 8px; line-height: 1.4; }
+    .qr-wrap { background: #fff; border-radius: 8px; padding: 7px; display: inline-block; }
+    .qr-wrap img { width: 120px; height: 120px; display: block; }
+    .bill-img { width: 100%; border-radius: 8px; display: block; }
+    .demo-right { display: flex; flex-direction: column; gap: 12px; }
+    .persona-compact {
+      background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.10);
+      border-radius: 14px; padding: 14px 16px;
+      width: 66.67%;
+    }
+    .persona-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; color: #007AFF; margin-bottom: 8px; display: block; }
+    .persona-name  { font-size: 17px; font-weight: 700; margin-bottom: 10px; }
+    .persona-tag {
+      display: inline-block; padding: 4px 10px; font-size: 11px; font-weight: 600;
+      border-radius: 20px; background: rgba(255,255,255,0.12); color: rgba(255,255,255,0.9);
+      margin: 3px 3px 0 0;
+    }
+    .demo-steps { display: flex; flex-direction: column; gap: 10px; }
+    .demo-step  { display: flex; align-items: flex-start; gap: 12px; }
+    .demo-step-num {
+      width: 26px; height: 26px; border-radius: 50%; background: rgba(0,122,255,0.15);
+      color: #007AFF; font-size: 12px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .demo-step-text { font-size: 15px; color: rgba(255,255,255,0.9); line-height: 1.5; padding-top: 3px; }
+    .demo-step-text strong { color: #fff; }
+    .demo-btn {
+      display: flex; align-items: center; justify-content: center;
+      width: 32px; height: 32px; margin: 6px auto 0;
+      background: rgba(0,122,255,0.13); border: 1px solid rgba(0,122,255,0.28);
+      border-radius: 50%; color: #007AFF; text-decoration: none; cursor: pointer;
+    }
+    .demo-btn:hover { background: rgba(0,122,255,0.28); }
+
+    /* ── SLIDE 6 · 국민혜택 ── */
+    .compare-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 32px;
+      width: 100%; max-width: 920px;
+    }
+    .compare-col { padding: 32px 28px; border-radius: 18px; }
+    .compare-col.col-before { background: #f5f5f7; border: 1px solid #e8e8ea; }
+    .compare-col.col-after  { background: #111; color: #fff; border: 1px solid #2a2a2a; }
+    .compare-col h3 { font-size: 22px; font-weight: 800; margin-bottom: 4px; letter-spacing: -0.3px; }
+    .compare-col.col-before h3 { color: #1a1a1a; }
+    .compare-col.col-after  h3 { color: #007AFF; }
+    .compare-col .col-sub  { font-size: 12px; color: #444; margin-bottom: 18px; }
+    .compare-col.col-after .col-sub { color: rgba(255,255,255,0.9); }
+    .compare-col ul { list-style: none; display: flex; flex-direction: column; gap: 11px; }
+    .compare-col ul li { font-size: 15px; line-height: 1.5; padding-left: 18px; position: relative; }
+    .compare-col.col-before ul li { color: #1a1a1a; }
+    .compare-col.col-after  ul li { color: rgba(255,255,255,0.9); }
+    .compare-col ul li::before {
+      content: ''; position: absolute; left: 0; top: 7px;
+      width: 7px; height: 7px; border-radius: 50%;
+    }
+    .compare-col.col-before ul li::before { background: #ccc; }
+    .compare-col.col-after  ul li::before { background: #007AFF; }
+
+    .impact-row {
+      display: flex; width: 100%; max-width: 920px; margin-top: 20px; gap: 14px;
+    }
+    .impact-item {
+      flex: 1; text-align: center; background: #eef4ff;
+      border: 2px solid #c8dcff; border-radius: 18px; padding: 20px 14px 18px;
+    }
+    .impact-num   { display: block; font-size: 36px; font-weight: 900; letter-spacing: -1.5px; color: #007AFF; }
+    .impact-label { display: block; font-size: 13px; color: #333; margin-top: 8px; line-height: 1.55; font-weight: 500; }
+
+    /* ── SLIDE 7 · 발전방안 ── */
+    .roadmap-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 24px;
+      width: 100%; max-width: 920px; margin-top: 28px;
+    }
+    .roadmap-col {
+      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 18px; padding: 28px 24px;
+    }
+    .roadmap-col .col-head { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; }
+    .roadmap-col .col-badge {
+      padding: 4px 14px; font-size: 11px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 1.5px; border-radius: 20px;
+    }
+    .roadmap-col.col-now    .col-badge { background: rgba(0,122,255,0.15); color: #007AFF; }
+    .roadmap-col.col-future .col-badge { background: rgba(175,82,222,0.15); color: #AF52DE; }
+    .roadmap-col .col-timeline { font-size: 12px; color: rgba(255,255,255,0.9); }
+    .roadmap-col h3 { font-size: 20px; font-weight: 700; margin-bottom: 16px; letter-spacing: -0.3px; }
+    .roadmap-col ul { list-style: none; display: flex; flex-direction: column; gap: 11px; }
+    .roadmap-col ul li { display: flex; align-items: flex-start; gap: 10px; font-size: 14px; color: rgba(255,255,255,0.9); line-height: 1.5; }
+    .roadmap-col ul li::before { content: ''; width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; margin-top: 7px; }
+    .roadmap-col.col-now    ul li::before { background: #007AFF; }
+    .roadmap-col.col-future ul li::before { background: #AF52DE; }
+    .roadmap-col ul li strong { color: #fff; }
+
+    .closing-block { max-width: 780px; text-align: center; margin-top: 28px; }
+    .closing-catch {
+      font-size: 24px; font-weight: 700; letter-spacing: -0.5px; line-height: 1.5;
+      background: linear-gradient(135deg, #007AFF, #5856D6);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .closing-sub { font-size: 14px; color: rgba(255,255,255,0.9); margin-top: 10px; }
+
+    /* ── PRINT ── */
+    @media print {
+      .progress-bar, .slide-counter, .hint, .fullscreen-btn { display: none !important; }
+      .deck { width: 100%; height: auto; }
+      .slide {
+        position: relative; opacity: 1 !important; visibility: visible !important;
+        page-break-after: always; width: 100%; height: 100vh;
+        print-color-adjust: exact; -webkit-print-color-adjust: exact;
+      }
+      .slide .a { opacity: 1 !important; transform: none !important; }
+      .slide-dark     { background: #000 !important; color: #fff !important; }
+      .slide-gradient { background: linear-gradient(135deg,#1a1a2e,#16213e,#0f3460) !important; }
+      .slide-light    { background: #fff !important; color: #1a1a1a !important; }
+      @page { size: landscape; margin: 0; }
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      .slide { padding: 40px 36px; }
+      .title-slide .main-title { font-size: 64px; }
+      .team-grid, .roadmap-grid, .compare-grid { grid-template-columns: 1fr; }
+      .demo-layout { grid-template-columns: 1fr; }
+      .stat-row, .barrier-row, .flow-row { flex-direction: column; }
+      .impact-row { flex-direction: column; gap: 12px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="progress-bar" id="progress"></div>
+  <div class="slide-counter" id="counter"></div>
+  <div class="hint" id="hint">
+    <kbd>←</kbd><kbd>→</kbd> 이동 &nbsp;
+    <kbd>F</kbd> 전체화면 &nbsp;
+    <kbd>S</kbd> 노트
+  </div>
+  <button class="fullscreen-btn" id="fs-btn" onclick="toggleFullscreen()">&#x26F6;</button>
+
+  <div class="deck" id="deck">
+
+    <!-- ══════════════════════════════════════
+         SLIDE 1 · 표지
+    ══════════════════════════════════════ -->
+    <div class="slide slide-dark active title-slide"
+         data-notes="안녕하세요, 고용노동부 팀 드리미입니다. 저희가 오늘 해결하려는 미션은 '흩어진 복지·혜택을 국민에게 닿게 하라'입니다. [약 30초]">
+      <span class="a overline">2026 AI챔피언 해커톤</span>
+      <h1 class="a main-title text-gradient">드리미</h1>
+      <div class="a divider"></div>
+      <p class="a sub">흩어진 복지·혜택을 국민에게 닿게 하라</p>
+      <p class="a meta">팀 드리미 &nbsp;·&nbsp; 고용노동부</p>
+    </div>
+
+    <!-- ══════════════════════════════════════
+         SLIDE 2 · 팀소개
+    ══════════════════════════════════════ -->
+    <div class="slide slide-gradient"
+         data-notes="팀 드리미는 고용노동부 소속 2인 팀입니다. 기획·데이터와 백엔드·프론트를 각각 담당했습니다. 저희 역할 한 줄: 복지 데이터를 찾아내고, AI가 국민에게 연결합니다. [약 20초]">
+      <p class="a overline" style="color: rgba(255,255,255,0.9); letter-spacing: 4px;">Team</p>
+      <h2 class="a text-center" style="font-size: 52px; font-weight: 900; letter-spacing: -1.5px; margin-bottom: 4px;">팀 드리미</h2>
+      <p class="a text-center text-muted" style="font-size: 16px;">소속: 고용노동부 &nbsp;·&nbsp; 구성: 2인</p>
+      <div class="a team-grid">
+        <div class="team-card">
+          <span class="role-badge">백엔드 · 프론트</span>
+          <h3>강기륜 – AI Pipeline & Build</h3>
+          <p>FastAPI 서버, Gemini OCR 파이프라인, RAG 엔진,<br>단일 HTML 프론트엔드 구현</p>
+        </div>
+        <div class="team-card">
+          <span class="role-badge">기획 · 데이터</span>
+          <h3>이태규 – Problem & Data</h3>
+          <p>문제 정의, 복지 corpus 설계·수집, UI/UX 검증,<br>사용성 기획, 발표</p>
+        </div>
+      </div>
+      <p class="a team-quote">"복지 데이터를 찾아내고, <strong>AI가 국민에게 연결한다</strong>"</p>
+    </div>
+
+    <!-- ══════════════════════════════════════
+         SLIDE 3 · 문제 정의
+    ══════════════════════════════════════ -->
+    <div class="slide slide-dark"
+         data-notes="드리미는 전 국민을 대상으로 하지만, 특히 65세 이상 고령층이 핵심 대상입니다. 2025년 초고령사회에 진입했고, 1,051만 명 중 23.7%가 독거입니다. 세 겹의 장벽: 혜택이 있는지 모르고, 공문을 이해 못 하고, 신청 방법도 모릅니다. 그런데 70세 이상 스마트폰 사용률이 91%입니다. 정부 앱을 못 써도 사진 한 장은 찍을 수 있다는 거죠. 그게 저희 서비스의 출발점입니다. [약 60초]">
+      <h2 class="a text-center" style="font-size: 48px; font-weight: 900; letter-spacing: -1.5px;">문제 정의</h2>
+      <p class="a text-center" style="font-size: 15px; color: rgba(255,255,255,0.85); margin-top: 6px; font-weight: 500;">65세 이상 고령 디지털 취약계층 중심 대국민 서비스</p>
+      <div class="a stat-row" style="margin-top: 20px;">
+        <div class="stat-item">
+          <span class="stat-num">20.3%</span>
+          <span class="stat-label">전체 인구 대비 65세 이상<br>초고령사회 진입</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-num">1,051만</span>
+          <span class="stat-label">65세 이상 국민<br>세계 최고 속도 전환</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-num">23.7%</span>
+          <span class="stat-label">어르신 4명 중 1명 독거<br>18.7% "도움받을 곳 없다"</span>
+        </div>
+        <div class="stat-item" style="background: rgba(0,122,255,0.07);">
+          <span class="stat-num">91%</span>
+          <span class="stat-label">70세 이상 스마트폰 사용률<br>사진 한 장은 찍을 수 있다</span>
+        </div>
+      </div>
+      <div class="a" style="width:100%; max-width:880px; text-align:right; margin-top:5px;">
+        <span style="font-size:10px; color:rgba(255,255,255,0.4);">출처: 통계청, 2025</span>
+      </div>
+      <div class="a barrier-row">
+        <div class="barrier-card">
+          <div class="barrier-num">1</div>
+          <h4>혜택의 존재를 모름</h4>
+          <p>고지서·안내문 안에 혜택이 숨어 있으나<br>아무도 알려주지 않음</p>
+        </div>
+        <div class="barrier-card">
+          <div class="barrier-num">2</div>
+          <h4>어려운 단어·문장</h4>
+          <p>행정 용어로 가득한 공문은 내용 이해 자체가 어려움</p>
+        </div>
+        <div class="barrier-card">
+          <div class="barrier-num">3</div>
+          <h4>신청 방법을 모름</h4>
+          <p>자격이 되어도 어디서, 어떻게 신청하는지 막막함</p>
+        </div>
+      </div>
+      <div class="a" style="display: flex; align-items: center; gap: 10px; max-width: 880px; margin-top: 14px; padding: 12px 20px; border-radius: 10px; background: rgba(0,122,255,0.08); border: 1px solid rgba(0,122,255,0.2);">
+        <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #007AFF; white-space: nowrap;">인사이트</span>
+        <span style="width: 1px; height: 16px; background: rgba(0,122,255,0.3); flex-shrink:0;"></span>
+        <span style="font-size: 13px; color: rgba(255,255,255,0.9);">정부 앱은 못 써도 사진 한 장은 찍을 수 있다 — AI가 서류를 읽고 쉬운말로 연결하면, 어르신도 복지를 받을 수 있다</span>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════
+         SLIDE 4 · 드리미 소개
+    ══════════════════════════════════════ -->
+    <div class="slide slide-dark"
+         data-notes="저희는 드리미를 만들었습니다. 사용법은 간단합니다. 서류 사진 한 장을 찍으면 AI가 내 정보를 읽고 지금 신청 가능한 혜택을 바로 찾아드립니다. 파이프라인: 사진 → AI 추출·번역(20초) → 벡터DB 매칭(1초) → 큰 글씨+음성+전화·길찾기 출력. 건당 40원. 드리미의 철학은 하나입니다: AI가 사람을 대체하는 게 아니라, 사람(기관)에게 연결하는 것. [약 50초]">
+      <h2 class="a text-center" style="font-size: 48px; font-weight: 900; letter-spacing: -1.5px;">드리미 소개</h2>
+      <p class="a text-center text-subtle" style="font-size: 19px; margin-top: 4px;">사진 한 장으로 내 혜택을 찾아준다</p>
+      <div class="a flow-row">
+        <div class="flow-step">
+          <div class="step-glow"></div>
+          <div class="step-icon">
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#007AFF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+              <circle cx="12" cy="13" r="4"/>
+            </svg>
+          </div>
+          <div class="step-num">Step 01</div>
+          <div class="step-title">서류 촬영</div>
+          <div class="step-desc">고지서·공문 사진 한 장 업로드<br>말로 입력하는 것도 가능</div>
+        </div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-step">
+          <div class="step-glow"></div>
+          <div class="step-icon">
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#007AFF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="4" y="4" width="16" height="16" rx="2"/>
+              <rect x="9" y="9" width="6" height="6"/>
+              <line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/>
+              <line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/>
+              <line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/>
+              <line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/>
+            </svg>
+          </div>
+          <div class="step-num">Step 02</div>
+          <div class="step-title">AI 분석</div>
+          <div class="step-desc">Gemini OCR로 텍스트 추출·분류<br>어르신 눈높이 쉬운말 번역</div>
+        </div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-step">
+          <div class="step-glow"></div>
+          <div class="step-icon">
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#007AFF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"/>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+          </div>
+          <div class="step-num">Step 03</div>
+          <div class="step-title">혜택 매칭</div>
+          <div class="step-desc">복지로·보조금24 벡터 DB<br>RAG 의미 검색으로 즉시 매칭</div>
+        </div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-step">
+          <div class="step-glow"></div>
+          <div class="step-icon">
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#007AFF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.38 2 2 0 0 1 3.6 1.21h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.91 8.8a16 16 0 0 0 5.29 5.29l.94-.94a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+            </svg>
+          </div>
+          <div class="step-num">Step 04</div>
+          <div class="step-title">연결 안내</div>
+          <div class="step-desc">큰 글씨·TTS 음성으로 결과 안내<br>전화·길찾기로 기관에 바로 연결</div>
+        </div>
+      </div>
+      <div class="a catch-box">
+        <p>"AI가 사람을 대체하는 게 아니라, <strong>사람(기관)에게 연결하는 것</strong>"</p>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════
+         SLIDE 5 · 시연
+    ══════════════════════════════════════ -->
+    <div class="slide slide-gradient"
+         data-notes="지금 바로 시연해 드리겠습니다. QR을 스캔하면 서비스에 바로 접속하실 수 있습니다. 페르소나는 72세, 독거, 차상위 소득 어르신입니다. 고지서 사진을 올리면 AI가 프로필을 자동 추출하고, 에너지바우처·기초연금·노인맞춤돌봄이 즉시 카드로 표시됩니다. TTS 버튼으로 결과를 직접 읽어드립니다. [약 60초 - DEMO 전환]">
+      <h2 class="a text-center" style="font-size: 48px; font-weight: 900; letter-spacing: -1.5px;">시연</h2>
+      <p class="a text-center text-muted" style="font-size: 17px; margin-top: 4px; margin-bottom: 0;">실제로 작동합니다</p>
+      <div class="a demo-v2">
+        <div class="demo-right">
+          <div class="persona-compact">
+            <span class="persona-label">Demo Persona</span>
+            <div class="persona-name">72세 독거 어르신</div>
+            <span class="persona-tag">차상위 소득</span>
+            <span class="persona-tag">무릎 통증</span>
+            <span class="persona-tag">난방비 걱정</span>
+          </div>
+          <div class="demo-steps">
+            <div class="demo-step">
+              <div class="demo-step-num">1</div>
+              <div class="demo-step-text">전기요금 <strong>고지서 사진</strong> 업로드</div>
+            </div>
+            <div class="demo-step">
+              <div class="demo-step-num">2</div>
+              <div class="demo-step-text">AI가 나이·소득·상황 <strong>자동 추출</strong></div>
+            </div>
+            <div class="demo-step">
+              <div class="demo-step-num">3</div>
+              <div class="demo-step-text"><strong>에너지바우처 · 기초연금 · 노인맞춤돌봄</strong> 즉시 카드 표시</div>
+            </div>
+            <div class="demo-step">
+              <div class="demo-step-num">4</div>
+              <div class="demo-step-text">신청 방법 + <strong>전화번호 + 길찾기</strong> 안내</div>
+            </div>
+            <div class="demo-step">
+              <div class="demo-step-num">5</div>
+              <div class="demo-step-text"><strong>TTS</strong> — 결과를 직접 읽어드립니다</div>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:14px;">
+          <div>
+            <div class="demo-card" style="cursor:zoom-in;" onclick="openImgModal(this.querySelector('img').src,'서비스 QR 코드')">
+              <span class="demo-card-label">서비스 접속</span>
+              <div class="qr-wrap">
+                <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAZoAAAGaAQAAAAAefbjOAAADIElEQVR4nO1cS46jQAy1ASlLkPoAOQq52WhuBkfJAUaCZSQit/ypQHrVTKPQpN5bRFBgAa4n/8oVFlqNvlgvQwShABQRgCICUEQAighAEQEo4kiK4EBFRCMz9VzF2IXubGPpdI/XWwkIbaCIVhSDHtaiwabyoBaRv3zS09KupygUKs9AEWMYAL7YkdFiVJNR39huCAuy0+utAoQ2VUTfqD24Vmo3JqL2epLwFVs/6TuA0MsVUX0daLs7U9vdWHouJ7MRQuMGTyogdChF1CLS+WHp4QL/GcyJhI0QUZOx1+utAoQ2UERvmUSjhxY9jBZPzrh7qrHBk9YBQjt5DVmM1JOeqq+gScMK0qNnfmCe3lgR5Flla4mnJ5nhHKSrNbIcdGxxVb3LL/+mAkI/ZwRpHGFkCAqU4rmGmQxlhHQaYFjdAozIgRGk072YeONB+aBKmBHYiFwYIe4hfOKTm3B7oL7CWGKAjcinHlEK09iQ9OeJuO2mSmj8mKgdGq1n/7Of6hjfVEBoC0XcWbq5dj1WxJf65pVtkevpUa34+ZPWAEL75RplmnOjxSJ6MIcRSQjiiPcnLMXUDym19ITjOSM1qniAgVwjl8iSYs5jzExGPSccD5aAEXnVIwI++w4vU6EekWU9gh7hwhxRzNxAPSKzeoSEc7AxcxhKC7uwqGz7zb/8mwoIbRFZUhSr3UakwGEuXM4mA4zIgHvMTSnMZxHrobJ6hHTWb3u+sbVUoR5x1MldiwglB4sdrU6d4ojnUkSsdcBG5MIIsemOtc8URZr/iFUPX+EAI3KqWdJcuHRDYUFlqlHEujhsRC6RZUJ0YC9qlrHiGaTRe5BrvP/aJ8dZOYkvgPpAOcUFXQW1xbBXv14Bob33dPFib0YqT/iRJyH7vN46QGjLPV3UW0O2xZMjs3sS7dSed3dB5Xlxr7X2qUHb8bV3hptl4wR2Ah97cv9rT1ffaFhRD+Yh/IfbK5O3VB3imwoIbVGPUCzasJe5RuqzRD0iq7VPwyN2TH0yX7Zv2M3IPt9aiPHPZIeYpwJCDigiAEUEoIgAFBGAIgKvU8QntCquK/7XIc0AAAAASUVORK5CYII=" alt="서비스 QR코드" style="width:100px;height:100px;display:block;">
+              </div>
+            </div>
+            <a href="https://act-woods-capital-adoption.trycloudflare.com" target="_blank" class="demo-btn"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 12L12 2M12 2H6M12 2V8" stroke="#007AFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+          </div>
+          <div>
+            <div class="demo-card" style="cursor:zoom-in;" onclick="openImgModal(this.querySelector('img').src,'관리자 대시보드')">
+              <span class="demo-card-label">관리자 화면</span>
+              <div class="qr-wrap">
+                <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAZoAAAGaAQAAAAAefbjOAAADEUlEQVR4nO1cW47iMBBsJ5Hm05HmABzF3GCPtNojcQNyFA6wEvlECupVv0KGr8kOIgJXfSCwaWF1SuV22SYxrcbQrI8hQpADiXAgEQ4kwoFEOJAIBxLxSolIjo7Snq4ppV5ax25+iS/sNxneSiDoAYkoLDhL2Zg6onLqKKXdJShArfZHFYqUV5CIcRaAPBENu4mUIPynvyZtVgXZbHirgKBHJoL59CFScE009C2nfWYOoXjsL30LCHp6Irq7z0k1ohw+OJVTIipHIqbxAb/UIOilGJFFGEZ9+t2kUwcPfTulof/bUTlIxxbDaxC0USIGXUn0JGsNwdhR+i2FZolJRLHV8NYBQT9JBPEdjovFRZSX919Byh3vmAiyVWXhadlYRB4oa4dQQN+pZIARlTCC5Jlr9SDKoAS504ibKQGNqEIjzkQ2YZhXJWQQZeCjsuTcemEJjailjjjqexOKea6YiwnpNUcTjKisjmiNEaEWOn+EgqCyrJAR2ZXBq8hza9ywqUMnEdQR9VSWk1eR/vRvNaZqhLAEq8+66ojWaGFtc+HgvSoPMy3gR9TAiKwFpD9zmzBMI9SZUGDWqKuO4KCFCoURxIuJ5Qs0opadrrEn1nMyX7dDmUY5H5EvSTa+nj+8BkHb1hE8b27EoanZmbC1KTSiHs+yjYVneJZhai/nFDCitn0NDocqVp+x4Ai3An5EVfsaHH6EdejUcTOw7XAVKstagvKsEcqDPFHa50uy1eewE9LY2ZlthrcKCHqcZ9nGprftavm+uAGeZU3cYyNDWBFxtO6D+Sg3eNS1kgP8Gw1vJRD0cz8i+ac2BCFPHQ+9tOepIxo/p2UvUv7GiaDF+pJNKPxdILa74EdUeqernJJc3tHGq7fJSW0qfMGsUWPQIGQoZ/Gu7RKwFBO6zaEftx7ed4CgR97pYtnh0OpBbndJr+5r3EqN//6lBkEveaeLhl9MqRw+ZXEhBoTe86LrRsNrELSVi20IP0IvaCycibi+ARf7/Qmb8M9kL/GcGgQZkAgHEuFAIhxIhAOJcDwvEf8AlqLKqtN48UwAAAAASUVORK5CYII=" alt="관리자 QR" style="width:100px;height:100px;display:block;">
+              </div>
+            </div>
+            <a href="https://act-woods-capital-adoption.trycloudflare.com/dashboard" target="_blank" class="demo-btn"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 12L12 2M12 2H6M12 2V8" stroke="#007AFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════
+         SLIDE 6 · 국민 혜택 ★ (배점 40)
+    ══════════════════════════════════════ -->
+    <div class="slide slide-light"
+         data-notes="이 서비스가 바꾸는 것은 단순한 검색 편의가 아닙니다. 기존에는 여러 사이트를 돌아다니며 자격을 확인해야 했습니다. 드리미는 사진 한 장으로 내 혜택 목록을 즉시 보여줍니다. PoC 결과: 실물 서류 3건, 건당 151~566만 원을 평균 20초 만에 발견했습니다. 1,051만 명 중 10%만 이용해도 연간 최대 5,600억 원의 복지 사각지대를 해소할 수 있습니다. [약 50초]">
+      <h2 class="a text-center" style="font-size: 52px; font-weight: 900; letter-spacing: -1.5px; color: #1a1a1a;">국민 혜택</h2>
+      <p class="a text-center" style="font-size: 19px; color: #222; margin-top: 4px;">몰랐던 혜택을, 지금 바로 신청하게</p>
+      <div class="a compare-grid" style="margin-top: 24px;">
+        <div class="compare-col col-before">
+          <h3>Before</h3>
+          <div class="col-sub">기존 방식</div>
+          <ul>
+            <li>여러 사이트 직접 검색</li>
+            <li>자격 요건 이해 어려움</li>
+            <li>신청 링크·전화번호 직접 찾아야</li>
+            <li>디지털 취약계층은 포기</li>
+          </ul>
+        </div>
+        <div class="compare-col col-after">
+          <h3>After</h3>
+          <div class="col-sub">드리미 사용 시</div>
+          <ul>
+            <li>사진 한 장 → 평균 20초</li>
+            <li>쉬운말로 자동 번역·안내</li>
+            <li>전화·길찾기 버튼으로 즉시 연결</li>
+            <li>큰 글씨 + TTS — 어르신도 혼자 가능</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ══════════════════════════════════════
+         SLIDE 7 · 발전방안 + 클로징
+    ══════════════════════════════════════ -->
+    <div class="slide slide-dark"
+         data-notes="저희가 생각하는 다음 단계는 두 가지입니다. 즉시 보완: corpus 100건 확장, OCR 개선, 실서버 배포 — 1~2주 안에 가능합니다. 현업 도입: 복지로 API 연동, 키오스크, 고용24 일자리 연계. 마지막으로: 저희 드리미는 단 하나의 철학으로 움직입니다. AI가 사람을 대체하는 게 아니라, 사람(기관)에게 연결하는 것. 이상으로 팀 드리미 발표를 마칩니다. 감사합니다. [약 50초]">
+      <h2 class="a text-center" style="font-size: 52px; font-weight: 900; letter-spacing: -1.5px;">발전방안</h2>
+      <div class="a roadmap-grid">
+        <div class="roadmap-col col-now">
+          <div class="col-head">
+            <span class="col-badge">즉시 보완</span>
+            <span class="col-timeline">1~2주</span>
+          </div>
+          <ul>
+            <li>Corpus 44건 → <strong>무제한</strong> 확장 (아동·임산부·의료 추가)</li>
+            <li>OCR 정확도 개선 (Gemini Vision API 연동)</li>
+            <li>위저드 입력 전체 구현 (상황 태그 선택지)</li>
+            <li>실서버 배포 (로컬 → 클라우드)</li>
+          </ul>
+        </div>
+        <div class="roadmap-col col-future">
+          <div class="col-head">
+            <span class="col-badge">현업 도입</span>
+          </div>
+          <ul>
+            <li>복지로 API 연동 → 실시간 수급 자격 확인</li>
+            <li>관리자 대시보드 운영 → 사용량 통계 관리</li>
+            <li>다국어 지원 (한국어·베트남어·중국어)</li>
+            <li>고용24 연계 → <strong>일자리+복지 통합 안내</strong></li>
+          </ul>
+        </div>
+      </div>
+      <div class="a closing-block">
+        <div class="closing-catch">"AI가 사람을 대체하는 게 아니라, 사람(기관)에게 연결하는 것"</div>
+        <div class="closing-sub">팀 드리미 · 고용노동부 · 2026 AI챔피언 해커톤 &nbsp;|&nbsp; 감사합니다</div>
+      </div>
+    </div>
+
+      </div><!-- /deck -->
+
+  <script>
+    (function () {
+      'use strict';
+
+      var deck       = document.getElementById('deck');
+      var slides     = Array.from(deck.querySelectorAll('.slide'));
+      var total      = slides.length;
+      var current    = 0;
+      var progressEl = document.getElementById('progress');
+      var counterEl  = document.getElementById('counter');
+      var hintEl     = document.getElementById('hint');
+      var fsBtnEl    = document.getElementById('fs-btn');
+      var notesWin   = null;
+
+      /* ── speaker notes popup ── */
+      function openNotes() {
+        notesWin = window.open('', 'SpeakerNotes', 'width=520,height=420,top=80,left=80');
+        notesWin.document.write('<!DOCTYPE html><html><head><style>'
+          + '* { margin:0; padding:0; box-sizing:border-box; }'
+          + 'body { font-family:-apple-system,BlinkMacSystemFont,sans-serif; background:#1a1a1a; color:#e0e0e0; padding:24px; }'
+          + '.sn { font-size:12px; color:#777; margin-bottom:12px; font-family:monospace; }'
+          + '.lbl { font-size:11px; letter-spacing:2px; text-transform:uppercase; color:#555; margin-bottom:8px; }'
+          + '.nt { font-size:16px; line-height:1.8; color:#ccc; }'
+          + '</style></head><body>'
+          + '<div class="sn" id="sn"></div><div class="lbl">Speaker Notes</div><div class="nt" id="nt"></div>'
+          + '</body></html>');
+        notesWin.document.close();
+      }
+
+      function updateNotes() {
+        if (!notesWin || notesWin.closed) return;
+        try {
+          notesWin.document.getElementById('nt').textContent =
+            slides[current].dataset.notes || '(No notes)';
+          notesWin.document.getElementById('sn').textContent =
+            'Slide ' + (current + 1) + ' / ' + total;
+        } catch(e) {}
+      }
+
+      function toggleNotes() {
+        if (notesWin && !notesWin.closed) { notesWin.close(); notesWin = null; return; }
+        openNotes();
+        updateNotes();
+      }
+
+      /* ── hash ── */
+      function readHash() {
+        var h = window.location.hash;
+        if (h && /^#\d+$/.test(h)) {
+          var idx = parseInt(h.slice(1), 10) - 1;
+          if (idx >= 0 && idx < total) {
+            slides[current].classList.remove('active');
+            current = idx;
+            slides[current].classList.add('active');
+          }
+        }
+      }
+
+      /* ── ui update ── */
+      function updateUI() {
+        progressEl.style.width = ((current + 1) / total * 100) + '%';
+        counterEl.textContent  = (current + 1) + ' / ' + total;
+        var light = slides[current].classList.contains('slide-light');
+        counterEl.classList.toggle('on-light', light);
+        hintEl.classList.toggle('on-light', light);
+        fsBtnEl.classList.toggle('on-light', light);
+        history.replaceState(null, '', '#' + (current + 1));
+        updateNotes();
+      }
+
+      /* ── navigation ── */
+      function goTo(idx) {
+        if (idx < 0 || idx >= total || idx === current) return;
+        slides[current].classList.remove('active');
+        current = idx;
+        slides[current].classList.add('active');
+        updateUI();
+      }
+
+      /* ── keyboard ── */
+      document.addEventListener('keydown', function (e) {
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+        switch (e.key) {
+          case 'ArrowRight': case 'ArrowDown':
+            e.preventDefault(); goTo(current + 1); break;
+          case 'ArrowLeft': case 'ArrowUp':
+            e.preventDefault(); goTo(current - 1); break;
+          case ' ':
+            e.preventDefault(); e.shiftKey ? goTo(current - 1) : goTo(current + 1); break;
+          case 'Home': e.preventDefault(); goTo(0); break;
+          case 'End':  e.preventDefault(); goTo(total - 1); break;
+          case 'f': case 'F': e.preventDefault(); toggleFullscreen(); break;
+          case 's': case 'S': e.preventDefault(); toggleNotes(); break;
+        }
+      });
+
+      /* ── click navigation ── */
+      deck.addEventListener('click', function (e) {
+        if (e.target.closest('a, button, code, pre')) return;
+        var x = e.clientX - deck.getBoundingClientRect().left;
+        x > deck.offsetWidth / 2 ? goTo(current + 1) : goTo(current - 1);
+      });
+
+      /* ── touch / swipe ── */
+      var tx = 0, ty = 0, tt = 0;
+      deck.addEventListener('touchstart', function (e) {
+        tx = e.touches[0].clientX; ty = e.touches[0].clientY; tt = Date.now();
+      }, { passive: true });
+      deck.addEventListener('touchend', function (e) {
+        var dx = e.changedTouches[0].clientX - tx;
+        var dy = e.changedTouches[0].clientY - ty;
+        if (Date.now() - tt > 500 || Math.abs(dx) < 50 || Math.abs(dy) > Math.abs(dx)) return;
+        dx < 0 ? goTo(current + 1) : goTo(current - 1);
+      }, { passive: true });
+
+      /* ── fullscreen ── */
+      window.toggleFullscreen = function () {
+        if (!document.fullscreenElement) {
+          document.documentElement.requestFullscreen().catch(function(){});
+        } else {
+          document.exitFullscreen().catch(function(){});
+        }
+      };
+
+      window.toggleNotes = toggleNotes;
+
+      window.addEventListener('hashchange', function () { readHash(); updateUI(); });
+
+      readHash();
+      updateUI();
+    }());
+  
+  function openImgModal(src, label) {
+    event.stopPropagation();
+    if (src) document.getElementById('imgModalImg').src = src;
+    document.getElementById('imgModalLabel').textContent = label || '';
+    document.getElementById('imgModal').style.display = 'flex';
+  }
+  function closeImgModal() {
+    document.getElementById('imgModal').style.display = 'none';
+  }
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeImgModal();
+  });
+</script>
+  <!-- Image Modal -->
+  <div id="imgModal" onclick="closeImgModal()" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.92); z-index:9999; align-items:center; justify-content:center; flex-direction:column; cursor:zoom-out;">
+    <div style="background:#fff; border-radius:18px; padding:16px; box-shadow:0 8px 48px rgba(0,0,0,0.6);">
+      <img id="imgModalImg" src="" alt="" style="width:480px; height:480px; display:block; border-radius:6px; object-fit:contain;">
+    </div>
+    <div id="imgModalLabel" style="color:rgba(255,255,255,0.6); font-size:13px; margin-top:14px; letter-spacing:0.5px;"></div>
+  </div>
+</body>
+</html>
